@@ -108,3 +108,12 @@ def test_plan_validation(tmp_path):
     p.write_text('name = "x"\nreference = "z"\n[[arms]]\nname = "a"\n')
     with pytest.raises(ex.PlanError):
         ex.load_plan(p)
+
+
+def test_arm_seeds_override_plan_seeds():
+    plan = {"name": "p", "out": "o", "seeds": [0, 1, 2], "dev_eval": "", "qlora": False,
+            "arms": [{"name": "base"}, {"name": "a", "parts": ["x"]}, {"name": "b", "parts": ["y"], "seeds": [0]}]}
+    s = ex.steps(plan)
+    assert [x[2] for x in s if x[0] == "pretrain" and x[1] == "a"] == [0, 1, 2]
+    assert [x[2] for x in s if x[0] == "pretrain" and x[1] == "b"] == [0]
+    assert [x for x in s if x[1] == "base"] == [("evaluate", "base", None, ex.Layout(plan).result("base", None))]

@@ -1,11 +1,11 @@
-# legal curation recipes (2026-11-19), Pythia-160M, 1 seed. Recipes are CHOSEN on the dev sets (data/eval-dev:
+# legal curation recipes (2026-11-19), Pythia-160M, 3 seeds for the mixes (2026-11-21). Recipes are CHOSEN on the dev sets (data/eval-dev:
 # WikiText-103 validation + legal dev); the test sets (data/eval) are reported once, not used for the choice.
 # Same arms as the medical recipe pass. Run from `training`:
 #   ../backend/.venv/Scripts/python -m dftrain experiment plans/legal-160m.toml
 name = "legal-160m"
 model = "EleutherAI/pythia-160m"
 budget = "19.8M"
-seeds = [0]
+seeds = [0, 1, 2]    # arms with `seeds = [0]` stay at one seed
 reference = "random"
 tasks = ["wikitext", "legal"]
 shots = [0]
@@ -28,6 +28,7 @@ parts = ["../backend/runs/legal-random-20261119-134712-0350"]
 
 [[arms]]
 name = "curated"
+seeds = [0]
 parts = ["../backend/runs/legal-20261119-134712-3ae7"]
 
 [[arms]]
@@ -44,3 +45,11 @@ parts = ["../backend/runs/legal-20261119-134712-337b=0.6", "../backend/runs/gene
 name = "control-random-mix"
 description = "random legal without its FineWeb documents 60% + curated general 40%"
 parts = ["data/parts/random-legal-only.jsonl=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+# Raw-Wikipedia control (2026-11-21): same unfiltered domain part as the control arm 60% + raw Wikipedia
+# (general --mode random --sources wikipedia, no filters) 40%. Tests whether the gain of the curated-general
+# mixes on WikiText is just "Wikipedia helps WikiText".
+[[arms]]
+name = "wiki-mix"
+description = "random domain part (no FineWeb) 60% + raw Wikipedia 40%"
+parts = ["data/parts/random-legal-only.jsonl=0.6", "../backend/runs/general-random-20261121-233042-84e7=0.4"]

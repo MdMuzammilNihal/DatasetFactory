@@ -6,7 +6,7 @@
 name = "medical-160m"
 model = "EleutherAI/pythia-160m"
 budget = "19.8M"
-seeds = [0]
+seeds = [0, 1, 2]    # arms with `seeds = [0]` stay at one seed
 reference = "random"
 tasks = ["wikitext", "medical", "clinical", "pubmedqa"]
 shots = [0]
@@ -32,16 +32,19 @@ parts = ["../backend/runs/medical-20261118-213054-acf9"]
 
 [[arms]]
 name = "no-validator"
+seeds = [0]
 parts = ["../backend/runs/medical-20261118-214653-7cec"]
 
 [[arms]]
 name = "no-score"
+seeds = [0]
 parts = ["../backend/runs/medical-20261118-215158-9873"]
 
 # R1: curated medical + curated general (Wikipedia + FineWeb, 100M general run); 40% general by tokens,
 # about random's 39% FineWeb share, so random vs R1 compares filtered vs unfiltered at a similar mix.
 [[arms]]
 name = "r1-mix"
+seeds = [0]
 description = "curated medical 60% + curated general 40%"
 parts = ["../backend/runs/medical-20261118-213054-acf9=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
 
@@ -59,3 +62,11 @@ parts = ["../backend/runs/medical-20261119-114819-21d1=0.6", "../backend/runs/ge
 name = "control-random-mix"
 description = "random medical (no filters) 60% + curated general 40%"
 parts = ["data/parts/random-medical-only.jsonl=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+# Raw-Wikipedia control (2026-11-21): same unfiltered domain part as the control arm 60% + raw Wikipedia
+# (general --mode random --sources wikipedia, no filters) 40%. Tests whether the gain of the curated-general
+# mixes on WikiText is just "Wikipedia helps WikiText".
+[[arms]]
+name = "wiki-mix"
+description = "random domain part (no FineWeb) 60% + raw Wikipedia 40%"
+parts = ["data/parts/random-medical-only.jsonl=0.6", "../backend/runs/general-random-20261121-233042-84e7=0.4"]
