@@ -1,0 +1,46 @@
+# code curation recipes (2026-11-19), Pythia-160M, 1 seed. Recipes are CHOSEN on the dev sets (data/eval-dev:
+# WikiText-103 validation + code dev); the test sets (data/eval) are reported once, not used for the choice.
+# Same arms as the medical recipe pass. Run from `training`:
+#   ../backend/.venv/Scripts/python -m dftrain experiment plans/code-160m.toml
+name = "code-160m"
+model = "EleutherAI/pythia-160m"
+budget = "19.8M"
+seeds = [0]
+reference = "random"
+tasks = ["wikitext", "code"]
+shots = [0]
+qlora = false
+dev_eval = "data/eval-dev"
+summary = "summary"
+
+[pretrain]
+lr = 6e-5
+global_batch = 32
+micro_batch = 4
+
+[[arms]]
+name = "base"
+
+[[arms]]
+name = "random"
+description = "same sources, no filters (--mode random)"
+parts = ["../backend/runs/code-random-20261119-135212-9e9f"]
+
+[[arms]]
+name = "curated"
+parts = ["../backend/runs/code-20261119-135212-b50b"]
+
+[[arms]]
+name = "curated-mix"
+description = "curated code 60% + curated general 40%"
+parts = ["../backend/runs/code-20261119-135212-b50b=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+[[arms]]
+name = "loose-mix"
+description = "loose code (no validator, no score threshold) 60% + curated general 40%"
+parts = ["../backend/runs/code-20261119-135212-0b4f=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+[[arms]]
+name = "control-random-mix"
+description = "random code without its FineWeb documents 60% + curated general 40%"
+parts = ["data/parts/random-code-only.jsonl=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]

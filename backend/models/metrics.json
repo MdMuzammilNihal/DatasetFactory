@@ -1,0 +1,647 @@
+{
+  "general": {
+    "accuracy": 0.968,
+    "roc_auc": 0.9967,
+    "train_documents": 3751,
+    "test_documents": 938,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 0.0,
+        "n": 14,
+        "positive": false
+      },
+      "code_java": {
+        "accepted": 0.0,
+        "n": 106,
+        "positive": false
+      },
+      "code_js": {
+        "accepted": 0.0,
+        "n": 21,
+        "positive": false
+      },
+      "code_py": {
+        "accepted": 0.0,
+        "n": 100,
+        "positive": false
+      },
+      "fineweb": {
+        "accepted": 0.091,
+        "n": 307,
+        "positive": false
+      },
+      "wikipedia": {
+        "accepted": 0.995,
+        "n": 390,
+        "positive": true
+      }
+    },
+    "top_positive_tokens": [
+      "also",
+      "may",
+      "known",
+      "is a",
+      "which",
+      "and the",
+      "refer",
+      "as the",
+      "by",
+      "in the",
+      "refer to",
+      "american"
+    ],
+    "top_negative_tokens": [
+      "if",
+      "you",
+      "will",
+      "return",
+      "we",
+      "s",
+      "the",
+      "get",
+      "your",
+      "our",
+      "this",
+      "def"
+    ],
+    "model_file": "quality_general.npz",
+    "model_kb": 456,
+    "independent_samples_accepted": {
+      "fineweb": 0.087,
+      "wikipedia": 0.98,
+      "news_cnn": 0.283,
+      "med_pubmed": 0.4,
+      "med_pubmedqa": 0.327,
+      "legal_cap": 0.725,
+      "sci_arxiv_sum": 0.833,
+      "sci_arxiv_cp": 0.45,
+      "code_py": 0.0,
+      "code_java": 0.0
+    }
+  },
+  "news": {
+    "accuracy": 0.9606,
+    "roc_auc": 0.9915,
+    "train_documents": 10344,
+    "test_documents": 2587,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 0.0,
+        "n": 15,
+        "positive": false
+      },
+      "code_java": {
+        "accepted": 0.0,
+        "n": 89,
+        "positive": false
+      },
+      "code_js": {
+        "accepted": 0.0,
+        "n": 28,
+        "positive": false
+      },
+      "code_py": {
+        "accepted": 0.0,
+        "n": 127,
+        "positive": false
+      },
+      "fineweb": {
+        "accepted": 0.211,
+        "n": 317,
+        "positive": false
+      },
+      "legal_cap": {
+        "accepted": 0.0,
+        "n": 230,
+        "positive": false
+      },
+      "med_pubmed": {
+        "accepted": 0.0,
+        "n": 301,
+        "positive": false
+      },
+      "med_pubmedqa": {
+        "accepted": 0.0,
+        "n": 267,
+        "positive": false
+      },
+      "news_ccnews": {
+        "accepted": 0.923,
+        "n": 261,
+        "positive": true
+      },
+      "news_cnn": {
+        "accepted": 0.975,
+        "n": 398,
+        "positive": true
+      },
+      "sci_arxiv_cp": {
+        "accepted": 0.0,
+        "n": 72,
+        "positive": false
+      },
+      "sci_arxiv_sum": {
+        "accepted": 0.0,
+        "n": 178,
+        "positive": false
+      },
+      "wikipedia": {
+        "accepted": 0.016,
+        "n": 304,
+        "positive": false
+      }
+    },
+    "top_positive_tokens": [
+      "said",
+      "ap",
+      "says",
+      "said the",
+      "tuesday",
+      "it's",
+      "wednesday",
+      "president",
+      "has",
+      "u",
+      "he",
+      "told"
+    ],
+    "top_negative_tokens": [
+      "t",
+      "s",
+      "or",
+      "results",
+      "v",
+      "d",
+      "we",
+      "it is",
+      "return",
+      "present",
+      "use",
+      "however"
+    ],
+    "model_file": "quality_news.npz",
+    "model_kb": 481,
+    "independent_samples_accepted": {
+      "fineweb": 0.323,
+      "wikipedia": 0.02,
+      "news_cnn": 0.973,
+      "med_pubmed": 0.0,
+      "med_pubmedqa": 0.0,
+      "legal_cap": 0.0,
+      "sci_arxiv_sum": 0.0,
+      "sci_arxiv_cp": 0.0,
+      "code_py": 0.0,
+      "code_java": 0.0
+    }
+  },
+  "medical": {
+    "accuracy": 0.9896,
+    "roc_auc": 0.999,
+    "train_documents": 10740,
+    "test_documents": 2686,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 0.0,
+        "n": 23,
+        "positive": false
+      },
+      "code_java": {
+        "accepted": 0.018,
+        "n": 113,
+        "positive": false
+      },
+      "code_js": {
+        "accepted": 0.0,
+        "n": 24,
+        "positive": false
+      },
+      "code_py": {
+        "accepted": 0.0,
+        "n": 112,
+        "positive": false
+      },
+      "fineweb": {
+        "accepted": 0.024,
+        "n": 294,
+        "positive": false
+      },
+      "legal_cap": {
+        "accepted": 0.0,
+        "n": 223,
+        "positive": false
+      },
+      "med_pubmed": {
+        "accepted": 0.979,
+        "n": 373,
+        "positive": true
+      },
+      "med_pubmedqa": {
+        "accepted": 1.0,
+        "n": 388,
+        "positive": true
+      },
+      "news_ccnews": {
+        "accepted": 0.0,
+        "n": 283,
+        "positive": false
+      },
+      "news_cnn": {
+        "accepted": 0.0,
+        "n": 273,
+        "positive": false
+      },
+      "sci_arxiv_cp": {
+        "accepted": 0.036,
+        "n": 83,
+        "positive": false
+      },
+      "sci_arxiv_sum": {
+        "accepted": 0.01,
+        "n": 192,
+        "positive": false
+      },
+      "wikipedia": {
+        "accepted": 0.02,
+        "n": 305,
+        "positive": false
+      }
+    },
+    "top_positive_tokens": [
+      "results",
+      "were",
+      "and",
+      "of",
+      "patients",
+      "study",
+      "methods",
+      "in",
+      "was",
+      "the",
+      "clinical",
+      "to"
+    ],
+    "top_negative_tokens": [
+      "s",
+      "if",
+      "return",
+      "said",
+      "see",
+      "he",
+      "his",
+      "will",
+      "ap",
+      "where",
+      "you",
+      "is the"
+    ],
+    "model_file": "quality_medical.npz",
+    "model_kb": 481,
+    "independent_samples_accepted": {
+      "fineweb": 0.017,
+      "wikipedia": 0.0,
+      "news_cnn": 0.0,
+      "med_pubmed": 0.97,
+      "med_pubmedqa": 1.0,
+      "legal_cap": 0.0,
+      "sci_arxiv_sum": 0.0,
+      "sci_arxiv_cp": 0.017,
+      "code_py": 0.0,
+      "code_java": 0.0
+    }
+  },
+  "legal": {
+    "accuracy": 0.9992,
+    "roc_auc": 1.0,
+    "train_documents": 9953,
+    "test_documents": 2489,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 0.0,
+        "n": 21,
+        "positive": false
+      },
+      "code_java": {
+        "accepted": 0.0,
+        "n": 87,
+        "positive": false
+      },
+      "code_js": {
+        "accepted": 0.0,
+        "n": 26,
+        "positive": false
+      },
+      "code_py": {
+        "accepted": 0.0,
+        "n": 124,
+        "positive": false
+      },
+      "fineweb": {
+        "accepted": 0.0,
+        "n": 311,
+        "positive": false
+      },
+      "legal_cap": {
+        "accepted": 0.996,
+        "n": 223,
+        "positive": true
+      },
+      "med_pubmed": {
+        "accepted": 0.0,
+        "n": 306,
+        "positive": false
+      },
+      "med_pubmedqa": {
+        "accepted": 0.0,
+        "n": 303,
+        "positive": false
+      },
+      "news_ccnews": {
+        "accepted": 0.0,
+        "n": 251,
+        "positive": false
+      },
+      "news_cnn": {
+        "accepted": 0.0,
+        "n": 283,
+        "positive": false
+      },
+      "sci_arxiv_cp": {
+        "accepted": 0.0,
+        "n": 62,
+        "positive": false
+      },
+      "sci_arxiv_sum": {
+        "accepted": 0.0,
+        "n": 206,
+        "positive": false
+      },
+      "wikipedia": {
+        "accepted": 0.003,
+        "n": 286,
+        "positive": false
+      }
+    },
+    "top_positive_tokens": [
+      "v",
+      "jj",
+      "court",
+      "appellant",
+      "the court",
+      "defendant",
+      "j",
+      "plaintiff",
+      "judgment",
+      "no",
+      "judge",
+      "order"
+    ],
+    "top_negative_tokens": [
+      "more",
+      "results",
+      "can",
+      "about",
+      "most",
+      "using",
+      "ap",
+      "many",
+      "study",
+      "i",
+      "return",
+      "is"
+    ],
+    "model_file": "quality_legal.npz",
+    "model_kb": 471,
+    "independent_samples_accepted": {
+      "fineweb": 0.0,
+      "wikipedia": 0.005,
+      "news_cnn": 0.0,
+      "med_pubmed": 0.0,
+      "med_pubmedqa": 0.0,
+      "legal_cap": 0.96,
+      "sci_arxiv_sum": 0.0,
+      "sci_arxiv_cp": 0.0,
+      "code_py": 0.0,
+      "code_java": 0.0
+    }
+  },
+  "scientific": {
+    "accuracy": 0.9911,
+    "roc_auc": 0.999,
+    "train_documents": 7600,
+    "test_documents": 1901,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 0.0,
+        "n": 18,
+        "positive": false
+      },
+      "code_java": {
+        "accepted": 0.01,
+        "n": 105,
+        "positive": false
+      },
+      "code_js": {
+        "accepted": 0.0,
+        "n": 20,
+        "positive": false
+      },
+      "code_py": {
+        "accepted": 0.0,
+        "n": 126,
+        "positive": false
+      },
+      "fineweb": {
+        "accepted": 0.0,
+        "n": 275,
+        "positive": false
+      },
+      "legal_cap": {
+        "accepted": 0.0,
+        "n": 243,
+        "positive": false
+      },
+      "news_ccnews": {
+        "accepted": 0.0,
+        "n": 255,
+        "positive": false
+      },
+      "news_cnn": {
+        "accepted": 0.0,
+        "n": 302,
+        "positive": false
+      },
+      "sci_arxiv_cp": {
+        "accepted": 0.987,
+        "n": 75,
+        "positive": true
+      },
+      "sci_arxiv_sum": {
+        "accepted": 0.984,
+        "n": 183,
+        "positive": true
+      },
+      "wikipedia": {
+        "accepted": 0.04,
+        "n": 299,
+        "positive": false
+      }
+    },
+    "top_positive_tokens": [
+      "we",
+      "abstract",
+      "fig",
+      "model",
+      "e",
+      "g",
+      "where",
+      "these",
+      "data",
+      "paper",
+      "energy",
+      "et"
+    ],
+    "top_negative_tokens": [
+      "return",
+      "his",
+      "had",
+      "who",
+      "you",
+      "said",
+      "he",
+      "the",
+      "was",
+      "your",
+      "before",
+      "or"
+    ],
+    "model_file": "quality_scientific.npz",
+    "model_kb": 479,
+    "independent_samples_accepted": {
+      "fineweb": 0.01,
+      "wikipedia": 0.02,
+      "news_cnn": 0.0,
+      "med_pubmed": 0.05,
+      "med_pubmedqa": 0.007,
+      "legal_cap": 0.0,
+      "sci_arxiv_sum": 0.993,
+      "sci_arxiv_cp": 0.967,
+      "code_py": 0.0,
+      "code_java": 0.0
+    }
+  },
+  "code": {
+    "accuracy": 0.999,
+    "roc_auc": 1.0,
+    "train_documents": 12324,
+    "test_documents": 3082,
+    "per_corpus": {
+      "code_go": {
+        "accepted": 1.0,
+        "n": 29,
+        "positive": true
+      },
+      "code_java": {
+        "accepted": 0.996,
+        "n": 283,
+        "positive": true
+      },
+      "code_js": {
+        "accepted": 0.99,
+        "n": 96,
+        "positive": true
+      },
+      "code_py": {
+        "accepted": 1.0,
+        "n": 294,
+        "positive": true
+      },
+      "fineweb": {
+        "accepted": 0.003,
+        "n": 321,
+        "positive": false
+      },
+      "legal_cap": {
+        "accepted": 0.0,
+        "n": 304,
+        "positive": false
+      },
+      "med_pubmed": {
+        "accepted": 0.0,
+        "n": 292,
+        "positive": false
+      },
+      "med_pubmedqa": {
+        "accepted": 0.0,
+        "n": 279,
+        "positive": false
+      },
+      "news_ccnews": {
+        "accepted": 0.0,
+        "n": 282,
+        "positive": false
+      },
+      "news_cnn": {
+        "accepted": 0.0,
+        "n": 313,
+        "positive": false
+      },
+      "sci_arxiv_cp": {
+        "accepted": 0.0,
+        "n": 88,
+        "positive": false
+      },
+      "sci_arxiv_sum": {
+        "accepted": 0.0,
+        "n": 203,
+        "positive": false
+      },
+      "wikipedia": {
+        "accepted": 0.0,
+        "n": 298,
+        "positive": false
+      }
+    },
+    "top_positive_tokens": [
+      "return",
+      "def",
+      "if",
+      "function",
+      "param",
+      "public",
+      "self",
+      "else",
+      "void",
+      "string",
+      "true",
+      "get"
+    ],
+    "top_negative_tokens": [
+      "was",
+      "and",
+      "in the",
+      "were",
+      "on",
+      "at",
+      "by",
+      "with",
+      "of the",
+      "and the",
+      "are",
+      "their"
+    ],
+    "model_file": "quality_code.npz",
+    "model_kb": 476,
+    "independent_samples_accepted": {
+      "fineweb": 0.007,
+      "wikipedia": 0.0,
+      "news_cnn": 0.0,
+      "med_pubmed": 0.0,
+      "med_pubmedqa": 0.0,
+      "legal_cap": 0.0,
+      "sci_arxiv_sum": 0.0,
+      "sci_arxiv_cp": 0.0,
+      "code_py": 0.99,
+      "code_java": 1.0
+    }
+  }
+}

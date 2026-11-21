@@ -1,0 +1,34 @@
+# Medical ablations, 1 seed (seed variance of perplexity is ~0.01, see CLAUDE.md 10d).
+# Shares name and folders with plans/medical-160m.toml, so finished steps (random s0) are reused.
+# Only the ablations whose datasets differ from curated: no-validator (85.5% identical) and
+# no-score (93.2%). no-global-filter (99.8%), no-classifier (99.9%), no-dedup (100%) are not trained.
+# After it finishes, refresh the full table:  dftrain experiment plans/medical-160m.toml --summary-only
+name = "medical-160m"
+model = "EleutherAI/pythia-160m"
+budget = "19.8M"
+seeds = [0]
+reference = "random"
+tasks = ["wikitext", "medical", "clinical", "pubmedqa"]
+shots = [0, 3]
+qlora = false
+
+[pretrain]
+lr = 6e-5
+global_batch = 32
+micro_batch = 4
+
+[[arms]]
+name = "random"
+parts = ["../backend/runs/medical-random-20261118-213735-24dd"]
+
+[[arms]]
+name = "curated"
+parts = ["../backend/runs/medical-20261118-213054-acf9"]
+
+[[arms]]
+name = "no-validator"
+parts = ["../backend/runs/medical-20261118-214653-7cec"]
+
+[[arms]]
+name = "no-score"
+parts = ["../backend/runs/medical-20261118-215158-9873"]

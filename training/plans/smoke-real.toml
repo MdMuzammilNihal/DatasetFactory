@@ -1,0 +1,17 @@
+# Small real end-to-end check of the experiment runner (Module 10d): ~15 min on the RTX 4060.
+name = "smoke-real"
+model = "EleutherAI/pythia-160m"
+budget = "2M"
+seeds = [0, 1]
+reference = "base"
+tasks = ["wikitext", "medical", "pubmedqa"]
+shots = [0]
+qlora = true
+
+[[arms]]
+name = "base"
+
+[[arms]]
+name = "general"
+description = "curated Wikipedia + FineWeb from the 100M-token general run"
+parts = ["../backend/runs/general-20261117-184506-8722"]

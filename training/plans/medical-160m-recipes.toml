@@ -1,0 +1,61 @@
+# Medical curation recipes (2026-11-19), Pythia-160M, 1 seed. Recipes are CHOSEN on the dev sets
+# (data/eval-dev: WikiText-103 validation, other MedRAG PubMed files, pubmedqa_train contexts);
+# the test sets (data/eval) are reported once, not used for the choice.
+# Shares name and folders with plans/medical-160m.toml, so random/curated/ablation seed 0 runs are reused.
+# Run from `training`: ../backend/.venv/Scripts/python -m dftrain experiment plans/medical-160m-recipes.toml
+name = "medical-160m"
+model = "EleutherAI/pythia-160m"
+budget = "19.8M"
+seeds = [0]
+reference = "random"
+tasks = ["wikitext", "medical", "clinical", "pubmedqa"]
+shots = [0]
+qlora = false
+dev_eval = "data/eval-dev"
+summary = "summary-recipes"
+
+[pretrain]
+lr = 6e-5
+global_batch = 32
+micro_batch = 4
+
+[[arms]]
+name = "base"
+
+[[arms]]
+name = "random"
+parts = ["../backend/runs/medical-random-20261118-213735-24dd"]
+
+[[arms]]
+name = "curated"
+parts = ["../backend/runs/medical-20261118-213054-acf9"]
+
+[[arms]]
+name = "no-validator"
+parts = ["../backend/runs/medical-20261118-214653-7cec"]
+
+[[arms]]
+name = "no-score"
+parts = ["../backend/runs/medical-20261118-215158-9873"]
+
+# R1: curated medical + curated general (Wikipedia + FineWeb, 100M general run); 40% general by tokens,
+# about random's 39% FineWeb share, so random vs R1 compares filtered vs unfiltered at a similar mix.
+[[arms]]
+name = "r1-mix"
+description = "curated medical 60% + curated general 40%"
+parts = ["../backend/runs/medical-20261118-213054-acf9=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+# R2: medical with the validator and the score threshold off (config/ablations/medical-loose.toml;
+# global filter, classifier, dedup, PII still on) + the same 40% curated general.
+[[arms]]
+name = "r2-loose-mix"
+description = "loose medical (no validator, no score threshold) 60% + curated general 40%"
+parts = ["../backend/runs/medical-20261119-114819-21d1=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]
+
+# Control (2026-11-19): unfiltered medical (random job) 60% + the same curated general 40%.
+# Medical part = the random job without its FineWeb documents (data/parts/random-medical-only.jsonl).
+# Same mix as R1/R2; separates the effect of the general text from the effect of the medical filter.
+[[arms]]
+name = "control-random-mix"
+description = "random medical (no filters) 60% + curated general 40%"
+parts = ["data/parts/random-medical-only.jsonl=0.6", "../backend/runs/general-20261117-184506-8722=0.4"]

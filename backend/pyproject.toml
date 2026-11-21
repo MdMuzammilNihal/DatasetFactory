@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dataset-factory"
+version = "0.1.0"
+description = "Automated multi-domain data curation for LLM pretraining"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "fast-langdetect",
+    "datasets",          # streaming the Hugging Face corpora
+    "tokenizers",        # exact token counts with the Pythia tokenizer
+    "huggingface_hub",
+]
+
+[project.scripts]
+dataset-factory = "dataset_factory.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "httpx"]
+# The HTTP API (Module 8).
+api = ["fastapi", "uvicorn"]
+# Needed only to retrain the quality classifiers.
+train = ["scikit-learn"]
+
+[tool.setuptools.packages.find]
+include = ["dataset_factory*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

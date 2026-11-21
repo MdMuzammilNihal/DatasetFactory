@@ -1,0 +1,60 @@
+# Medical experiment, Pythia-160M, 20M tokens per corpus (Module 10d).
+# Run from `training`:  ../backend/.venv/Scripts/python -m dftrain experiment plans/medical-160m.toml
+# (--dry-run lists the steps; re-running continues where it stopped).
+# All arms point at the real 20M-token jobs of 2026-11-18. Main arms: 3 seeds (this plan, --only base,fineweb,random,curated).
+# Ablations: 1 seed via plans/medical-160m-ablations.toml (same name and folders). no-global-filter / no-classifier / no-dedup
+# are NOT trained: their datasets are 99.8-100% identical to curated.
+
+name = "medical-160m"
+model = "EleutherAI/pythia-160m"
+budget = "19.8M"  # training tokens incl. one EOS per doc; the 20M curation jobs give ~19.88M after EOS + decontamination
+seeds = [0, 1, 2]
+reference = "random"          # same sources, no filters: isolates the effect of curation
+tasks = ["wikitext", "medical", "clinical", "pubmedqa"]
+shots = [0, 3]
+qlora = false                 # Pythia-160M QLoRA only learns the label prior (10d); use 410M (Colab)
+
+[pretrain]
+lr = 6e-5
+global_batch = 32
+micro_batch = 4
+
+[[arms]]
+name = "base"
+
+[[arms]]
+name = "fineweb"
+description = "FineWeb, unfiltered (--mode random --sources fineweb): the paper's web baseline"
+parts = ["../backend/runs/general-random-20261118-213053-d830"]
+
+[[arms]]
+name = "random"
+description = "same medical sources, --mode random (no filters, no dedup)"
+parts = ["../backend/runs/medical-random-20261118-213735-24dd"]
+
+[[arms]]
+name = "curated"
+parts = ["../backend/runs/medical-20261118-213054-acf9"]
+
+# Leave-one-out ablations: the same curation job with one stage switched off
+# (backend --config with: global filter checks all disabled / medical validator checks
+# disabled / scoring threshold 0 / [classifier] enabled = false / [dedup] enabled = false).
+[[arms]]
+name = "no-global-filter"
+parts = ["../backend/runs/medical-20261118-214206-a4a5"]
+
+[[arms]]
+name = "no-validator"
+parts = ["../backend/runs/medical-20261118-214653-7cec"]
+
+[[arms]]
+name = "no-score"
+parts = ["../backend/runs/medical-20261118-215158-9873"]
+
+[[arms]]
+name = "no-classifier"
+parts = ["../backend/runs/medical-20261118-215611-28f2"]
+
+[[arms]]
+name = "no-dedup"
+parts = ["../backend/runs/medical-20261118-220027-1f80"]

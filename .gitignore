@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+
+# Generated datasets, checkpoints and model weights
+data/
+runs/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.log
+*.done
+.claude/settings.local.json
+backend/runs_check_*.log
+*.tsbuildinfo
