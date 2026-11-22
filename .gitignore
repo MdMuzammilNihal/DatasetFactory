@@ -22,3 +22,4 @@ runs/
 .claude/settings.local.json
 backend/runs_check_*.log
 *.tsbuildinfo
+runs-demo/

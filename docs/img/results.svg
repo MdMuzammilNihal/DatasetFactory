@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 470" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+<rect width="1020" height="470" fill="white"/>
+<text x="510.0" y="22" text-anchor="middle" font-size="15" font-weight="600">Test perplexity vs same-source random baseline (Pythia-160M, 20M tokens; lower is better; dot = mean of 3 seeds, whisker = min-max)</text>
+<text x="260.0" y="47" text-anchor="middle" font-weight="600">medical: medical ppl ratio</text>
+<line x1="172.0" y1="55" x2="172.0" y2="180" stroke="#eee"/>
+<text x="172.0" y="195" text-anchor="middle" fill="#666">0.96</text>
+<line x1="216.0" y1="55" x2="216.0" y2="180" stroke="#eee"/>
+<text x="216.0" y="195" text-anchor="middle" fill="#666">0.98</text>
+<line x1="260.0" y1="55" x2="260.0" y2="180" stroke="#eee"/>
+<text x="260.0" y="195" text-anchor="middle" fill="#666">1.00</text>
+<line x1="304.0" y1="55" x2="304.0" y2="180" stroke="#eee"/>
+<text x="304.0" y="195" text-anchor="middle" fill="#666">1.02</text>
+<line x1="348.0" y1="55" x2="348.0" y2="180" stroke="#eee"/>
+<text x="348.0" y="195" text-anchor="middle" fill="#666">1.04</text>
+<line x1="260.0" y1="55" x2="260.0" y2="180" stroke="#333" stroke-dasharray="4 3"/>
+<text x="142" y="71" text-anchor="end">curated</text>
+<line x1="301.5" y1="67" x2="304.5" y2="67" stroke="#a23b3b" stroke-width="2"/>
+<circle cx="302.7" cy="67" r="5" fill="#a23b3b"/>
+<text x="302.7" y="59" text-anchor="middle" font-size="10" fill="#444">1.019</text>
+<text x="142" y="95" text-anchor="end">curated-mix</text>
+<circle cx="291.4" cy="91" r="5" fill="#2a6fb0"/>
+<text x="291.4" y="83" text-anchor="middle" font-size="10" fill="#444">1.014</text>
+<text x="142" y="119" text-anchor="end">loose-mix</text>
+<line x1="258.5" y1="115" x2="261.9" y2="115" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="260.6" cy="115" r="5" fill="#5b9bd5"/>
+<text x="260.6" y="107" text-anchor="middle" font-size="10" fill="#444">1.000</text>
+<text x="142" y="143" text-anchor="end">control (unfiltered mix)</text>
+<line x1="256.5" y1="139" x2="259.1" y2="139" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="257.8" cy="139" r="5" fill="#7a7a7a"/>
+<text x="257.8" y="131" text-anchor="middle" font-size="10" fill="#444">0.999</text>
+<text x="142" y="167" text-anchor="end">wiki-mix (raw Wikipedia)</text>
+<line x1="258.1" y1="163" x2="260.5" y2="163" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="259.6" cy="163" r="5" fill="#c28a1c"/>
+<text x="259.6" y="155" text-anchor="middle" font-size="10" fill="#444">1.000</text>
+<text x="550.0" y="47" text-anchor="middle" font-weight="600">legal: legal ppl ratio</text>
+<line x1="462.0" y1="55" x2="462.0" y2="180" stroke="#eee"/>
+<text x="462.0" y="195" text-anchor="middle" fill="#666">0.96</text>
+<line x1="506.0" y1="55" x2="506.0" y2="180" stroke="#eee"/>
+<text x="506.0" y="195" text-anchor="middle" fill="#666">0.98</text>
+<line x1="550.0" y1="55" x2="550.0" y2="180" stroke="#eee"/>
+<text x="550.0" y="195" text-anchor="middle" fill="#666">1.00</text>
+<line x1="594.0" y1="55" x2="594.0" y2="180" stroke="#eee"/>
+<text x="594.0" y="195" text-anchor="middle" fill="#666">1.02</text>
+<line x1="638.0" y1="55" x2="638.0" y2="180" stroke="#eee"/>
+<text x="638.0" y="195" text-anchor="middle" fill="#666">1.04</text>
+<line x1="550.0" y1="55" x2="550.0" y2="180" stroke="#333" stroke-dasharray="4 3"/>
+<circle cx="557.4" cy="67" r="5" fill="#a23b3b"/>
+<text x="557.4" y="59" text-anchor="middle" font-size="10" fill="#444">1.003</text>
+<line x1="592.1" y1="91" x2="620.0" y2="91" stroke="#2a6fb0" stroke-width="2"/>
+<circle cx="603.5" cy="91" r="5" fill="#2a6fb0"/>
+<text x="603.5" y="83" text-anchor="middle" font-size="10" fill="#444">1.024</text>
+<line x1="606.3" y1="115" x2="633.8" y2="115" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="618.7" cy="115" r="5" fill="#5b9bd5"/>
+<text x="618.7" y="107" text-anchor="middle" font-size="10" fill="#444">1.031</text>
+<line x1="622.1" y1="139" x2="641.1" y2="139" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="631.2" cy="139" r="5" fill="#7a7a7a"/>
+<text x="631.2" y="131" text-anchor="middle" font-size="10" fill="#444">1.037</text>
+<line x1="615.2" y1="163" x2="641.0" y2="163" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="626.3" cy="163" r="5" fill="#c28a1c"/>
+<text x="626.3" y="155" text-anchor="middle" font-size="10" fill="#444">1.035</text>
+<text x="840.0" y="47" text-anchor="middle" font-weight="600">code: code ppl ratio</text>
+<line x1="752.0" y1="55" x2="752.0" y2="180" stroke="#eee"/>
+<text x="752.0" y="195" text-anchor="middle" fill="#666">0.96</text>
+<line x1="796.0" y1="55" x2="796.0" y2="180" stroke="#eee"/>
+<text x="796.0" y="195" text-anchor="middle" fill="#666">0.98</text>
+<line x1="840.0" y1="55" x2="840.0" y2="180" stroke="#eee"/>
+<text x="840.0" y="195" text-anchor="middle" fill="#666">1.00</text>
+<line x1="884.0" y1="55" x2="884.0" y2="180" stroke="#eee"/>
+<text x="884.0" y="195" text-anchor="middle" fill="#666">1.02</text>
+<line x1="928.0" y1="55" x2="928.0" y2="180" stroke="#eee"/>
+<text x="928.0" y="195" text-anchor="middle" fill="#666">1.04</text>
+<line x1="840.0" y1="55" x2="840.0" y2="180" stroke="#333" stroke-dasharray="4 3"/>
+<circle cx="811.9" cy="67" r="5" fill="#a23b3b"/>
+<text x="811.9" y="59" text-anchor="middle" font-size="10" fill="#444">0.987</text>
+<line x1="832.4" y1="91" x2="842.5" y2="91" stroke="#2a6fb0" stroke-width="2"/>
+<circle cx="836.3" cy="91" r="5" fill="#2a6fb0"/>
+<text x="836.3" y="83" text-anchor="middle" font-size="10" fill="#444">0.998</text>
+<line x1="842.2" y1="115" x2="851.2" y2="115" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="846.2" cy="115" r="5" fill="#5b9bd5"/>
+<text x="846.2" y="107" text-anchor="middle" font-size="10" fill="#444">1.003</text>
+<line x1="844.9" y1="139" x2="849.0" y2="139" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="847.0" cy="139" r="5" fill="#7a7a7a"/>
+<text x="847.0" y="131" text-anchor="middle" font-size="10" fill="#444">1.003</text>
+<line x1="841.4" y1="163" x2="850.0" y2="163" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="846.6" cy="163" r="5" fill="#c28a1c"/>
+<text x="846.6" y="155" text-anchor="middle" font-size="10" fill="#444">1.003</text>
+<text x="260.0" y="222" text-anchor="middle" font-weight="600">medical: wikitext ppl ratio</text>
+<line x1="168.3" y1="230" x2="168.3" y2="355" stroke="#eee"/>
+<text x="168.3" y="370" text-anchor="middle" fill="#666">0.90</text>
+<line x1="205.0" y1="230" x2="205.0" y2="355" stroke="#eee"/>
+<text x="205.0" y="370" text-anchor="middle" fill="#666">0.92</text>
+<line x1="241.7" y1="230" x2="241.7" y2="355" stroke="#eee"/>
+<text x="241.7" y="370" text-anchor="middle" fill="#666">0.94</text>
+<line x1="278.3" y1="230" x2="278.3" y2="355" stroke="#eee"/>
+<text x="278.3" y="370" text-anchor="middle" fill="#666">0.96</text>
+<line x1="315.0" y1="230" x2="315.0" y2="355" stroke="#eee"/>
+<text x="315.0" y="370" text-anchor="middle" fill="#666">0.98</text>
+<line x1="351.7" y1="230" x2="351.7" y2="355" stroke="#eee"/>
+<text x="351.7" y="370" text-anchor="middle" fill="#666">1.00</text>
+<line x1="351.7" y1="230" x2="351.7" y2="355" stroke="#333" stroke-dasharray="4 3"/>
+<text x="142" y="246" text-anchor="end">curated-mix</text>
+<circle cx="195.7" cy="242" r="5" fill="#2a6fb0"/>
+<text x="195.7" y="234" text-anchor="middle" font-size="10" fill="#444">0.915</text>
+<text x="142" y="270" text-anchor="end">loose-mix</text>
+<line x1="169.5" y1="266" x2="189.2" y2="266" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="180.5" cy="266" r="5" fill="#5b9bd5"/>
+<text x="180.5" y="258" text-anchor="middle" font-size="10" fill="#444">0.907</text>
+<text x="142" y="294" text-anchor="end">control (unfiltered mix)</text>
+<line x1="171.9" y1="290" x2="179.4" y2="290" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="176.4" cy="290" r="5" fill="#7a7a7a"/>
+<text x="176.4" y="282" text-anchor="middle" font-size="10" fill="#444">0.904</text>
+<text x="142" y="318" text-anchor="end">wiki-mix (raw Wikipedia)</text>
+<line x1="190.9" y1="314" x2="223.5" y2="314" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="209.4" cy="314" r="5" fill="#c28a1c"/>
+<text x="209.4" y="306" text-anchor="middle" font-size="10" fill="#444">0.922</text>
+<text x="550.0" y="222" text-anchor="middle" font-weight="600">legal: wikitext ppl ratio</text>
+<line x1="458.3" y1="230" x2="458.3" y2="355" stroke="#eee"/>
+<text x="458.3" y="370" text-anchor="middle" fill="#666">0.90</text>
+<line x1="495.0" y1="230" x2="495.0" y2="355" stroke="#eee"/>
+<text x="495.0" y="370" text-anchor="middle" fill="#666">0.92</text>
+<line x1="531.7" y1="230" x2="531.7" y2="355" stroke="#eee"/>
+<text x="531.7" y="370" text-anchor="middle" fill="#666">0.94</text>
+<line x1="568.3" y1="230" x2="568.3" y2="355" stroke="#eee"/>
+<text x="568.3" y="370" text-anchor="middle" fill="#666">0.96</text>
+<line x1="605.0" y1="230" x2="605.0" y2="355" stroke="#eee"/>
+<text x="605.0" y="370" text-anchor="middle" fill="#666">0.98</text>
+<line x1="641.7" y1="230" x2="641.7" y2="355" stroke="#eee"/>
+<text x="641.7" y="370" text-anchor="middle" fill="#666">1.00</text>
+<line x1="641.7" y1="230" x2="641.7" y2="355" stroke="#333" stroke-dasharray="4 3"/>
+<line x1="463.1" y1="242" x2="491.9" y2="242" stroke="#2a6fb0" stroke-width="2"/>
+<circle cx="476.8" cy="242" r="5" fill="#2a6fb0"/>
+<text x="476.8" y="234" text-anchor="middle" font-size="10" fill="#444">0.910</text>
+<line x1="467.0" y1="266" x2="499.7" y2="266" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="483.1" cy="266" r="5" fill="#5b9bd5"/>
+<text x="483.1" y="258" text-anchor="middle" font-size="10" fill="#444">0.914</text>
+<line x1="471.0" y1="290" x2="506.1" y2="290" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="484.7" cy="290" r="5" fill="#7a7a7a"/>
+<text x="484.7" y="282" text-anchor="middle" font-size="10" fill="#444">0.914</text>
+<line x1="524.4" y1="314" x2="546.8" y2="314" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="536.6" cy="314" r="5" fill="#c28a1c"/>
+<text x="536.6" y="306" text-anchor="middle" font-size="10" fill="#444">0.943</text>
+<text x="840.0" y="222" text-anchor="middle" font-weight="600">code: wikitext ppl ratio</text>
+<line x1="748.3" y1="230" x2="748.3" y2="355" stroke="#eee"/>
+<text x="748.3" y="370" text-anchor="middle" fill="#666">0.90</text>
+<line x1="785.0" y1="230" x2="785.0" y2="355" stroke="#eee"/>
+<text x="785.0" y="370" text-anchor="middle" fill="#666">0.92</text>
+<line x1="821.7" y1="230" x2="821.7" y2="355" stroke="#eee"/>
+<text x="821.7" y="370" text-anchor="middle" fill="#666">0.94</text>
+<line x1="858.3" y1="230" x2="858.3" y2="355" stroke="#eee"/>
+<text x="858.3" y="370" text-anchor="middle" fill="#666">0.96</text>
+<line x1="895.0" y1="230" x2="895.0" y2="355" stroke="#eee"/>
+<text x="895.0" y="370" text-anchor="middle" fill="#666">0.98</text>
+<line x1="931.7" y1="230" x2="931.7" y2="355" stroke="#eee"/>
+<text x="931.7" y="370" text-anchor="middle" fill="#666">1.00</text>
+<line x1="931.7" y1="230" x2="931.7" y2="355" stroke="#333" stroke-dasharray="4 3"/>
+<line x1="846.0" y1="242" x2="854.3" y2="242" stroke="#2a6fb0" stroke-width="2"/>
+<circle cx="849.1" cy="242" r="5" fill="#2a6fb0"/>
+<text x="849.1" y="234" text-anchor="middle" font-size="10" fill="#444">0.955</text>
+<line x1="859.7" y1="266" x2="864.5" y2="266" stroke="#5b9bd5" stroke-width="2"/>
+<circle cx="861.5" cy="266" r="5" fill="#5b9bd5"/>
+<text x="861.5" y="258" text-anchor="middle" font-size="10" fill="#444">0.962</text>
+<line x1="840.9" y1="290" x2="860.9" y2="290" stroke="#7a7a7a" stroke-width="2"/>
+<circle cx="848.6" cy="290" r="5" fill="#7a7a7a"/>
+<text x="848.6" y="282" text-anchor="middle" font-size="10" fill="#444">0.955</text>
+<line x1="867.0" y1="314" x2="883.9" y2="314" stroke="#c28a1c" stroke-width="2"/>
+<circle cx="877.6" cy="314" r="5" fill="#c28a1c"/>
+<text x="877.6" y="306" text-anchor="middle" font-size="10" fill="#444">0.971</text>
+<text x="510.0" y="462" text-anchor="middle" fill="#666">medical curated-mix = r1-mix and loose-mix = r2-loose-mix (1 seed: medical r1-mix, legal and code curated); curated is omitted from the WikiText row (1.4-2.7x, off scale)</text>
+</svg>

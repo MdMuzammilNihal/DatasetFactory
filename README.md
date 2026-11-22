@@ -1,5 +1,7 @@
 # Dataset Factory
 
+![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-245%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
+
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
 curation helps and when it does not**.
 
@@ -11,6 +13,17 @@ measurements disagree with it, this README says so.
 Framing of the results: this is **not** a claim that "our curation makes better data". Measured on Pythia-160M with
 20M-token corpora, curation clearly helps for general web text, helps a little for legal (~1.3%) and code (~0.5%)
 text inside a mixed corpus, and the medical filters add nothing measurable. See [Results](#results).
+
+## Screenshots
+
+Dashboard with live jobs (real data streamed from Hugging Face), and a job running (stat tiles, rejection reasons,
+quality-score histogram, per-source and per-agent counts, licences, PII removed; updates live over SSE):
+
+![dashboard](docs/img/dashboard.png)
+![job running](docs/img/job-running.png)
+
+A finished legal job with the record browser: [docs/img/job-completed-legal.png](docs/img/job-completed-legal.png).
+Screenshots are regenerated with `node docs/tools/screenshot.mjs URL OUT.png [width] [height] [waitMs]`.
 
 ## Architecture
 
@@ -142,6 +155,10 @@ that are decontaminated against the training data. "Ratio vs random" is perplexi
 the **same sources with no filters** (paired bootstrap; lower is better, below 1 = curation helps). Mean of 3 seeds
 (`curated`, `no-validator`, `no-score`, `r1-mix`: 1 seed); dev sets agree in rank everywhere; seed std of ppl is
 0.00-0.35.
+
+![results](docs/img/results.svg)
+
+Chart: `training/scripts/make_results_chart.py` draws it from the experiment summaries.
 
 | arm | medical: WikiText / medical / clinical | legal: WikiText / legal | code: WikiText / code |
 |---|---|---|---|
