@@ -13,7 +13,7 @@ export default function Home() {
   const [target, setTarget] = useState<Target>("max_documents");
   const [amount, setAmount] = useState("200");
   const [mode, setMode] = useState("curate");
-  const [synthetic, setSynthetic] = useState(true);
+  const [synthetic, setSynthetic] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => { api<Meta>("/api/meta").then(setMeta).catch((e) => setError(String(e))); }, []);
