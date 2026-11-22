@@ -106,6 +106,13 @@ cd backend;  .venv/Scripts/python -m dataset_factory serve --port 8000
 cd frontend; npm run dev          # http://localhost:3000, API URL via NEXT_PUBLIC_API_URL
 ```
 
+**Curate your own data.** On the new-job form tick "your data (upload)", pick a `.jsonl`, `.csv`, `.parquet`
+or `.txt` file (max 200 MB), name the text field/column (for `.txt`: one document per blank-line block, or
+the whole file), set its licence, choose the domain whose validator should apply, and start. The same
+filters, dedup, PII scrub and report apply as for Hugging Face sources. Over HTTP: `POST /api/uploads`
+(multipart `file`, `text_field`, `txt_split`) returns an `upload_id`; `POST /api/jobs` with `upload_id` and
+`input_license`. The API takes only the id, never a file path. In the CLI: `curate DOMAIN --input f.jsonl`.
+
 ### Train and evaluate (from `training`)
 
 ```powershell

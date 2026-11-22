@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
@@ -18,6 +18,7 @@ from .. import __version__
 from ..config import Config, ConfigError, load_config
 from ..orchestrator import MODES, STATUSES, JobSpec, runtime_settings
 from ..validators import DOMAINS
+from .uploads import MAX_BYTES, FORMATS, UploadError, UploadNotFound, save_upload, upload_path
 from .manager import TERMINAL, JobConflict, JobManager, JobNotFound
 
 
@@ -31,6 +32,8 @@ class JobRequest(BaseModel):
     sources: list[str] | None = None
     seed: int | None = None
     workers: int | None = Field(None, ge=0, le=32)
+    upload_id: str | None = None       # curate a previous upload (never a path)
+    input_license: str | None = Field(None, max_length=100)
 
 
 def _read_lines(path: Path, offset: int, limit: int) -> tuple[list[dict[str, Any]], bool]:
@@ -81,7 +84,16 @@ def create_app(config: Config | None = None, output_dir: str | Path | None = Non
             "domains": list(DOMAINS), "modes": list(MODES), "statuses": list(STATUSES),
             "runtime": runtime_settings(cfg), "config_fingerprint": cfg.fingerprint,
             "max_running": manager.max_running,
+            "upload": {"formats": list(FORMATS), "max_mb": MAX_BYTES // (1024 * 1024)},
         }
+
+    @app.post("/api/uploads", status_code=201)
+    def upload(file: UploadFile = File(...), text_field: str = Form("text"),
+               txt_split: str = Form("blocks")):
+        try:
+            return save_upload(manager.output_dir, file.filename or "", file.file, text_field, txt_split)
+        except UploadError as exc:
+            raise HTTPException(400, str(exc)) from exc
 
     @app.get("/api/jobs")
     def list_jobs():
@@ -89,8 +101,18 @@ def create_app(config: Config | None = None, output_dir: str | Path | None = Non
 
     @app.post("/api/jobs", status_code=202)
     def start_job(req: JobRequest):
+        fields = req.model_dump(exclude={"upload_id", "input_license"})
+        if req.upload_id is not None:
+            try:
+                fields["input_file"] = str(upload_path(manager.output_dir, req.upload_id))
+            except UploadNotFound:
+                raise HTTPException(404, f"no such upload: {req.upload_id}") from None
+            if req.input_license:
+                fields["input_license"] = req.input_license
+            if req.sources or req.synthetic:
+                raise HTTPException(400, "an upload job cannot also set sources or synthetic")
         try:
-            return manager.start(JobSpec(**req.model_dump()))
+            return manager.start(JobSpec(**fields))
         except ConfigError as exc:
             raise HTTPException(400, str(exc)) from exc
 

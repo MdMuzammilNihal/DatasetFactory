@@ -21,7 +21,7 @@ dataset-factory = "dataset_factory.cli:main"
 [project.optional-dependencies]
 dev = ["pytest", "httpx"]
 # The HTTP API (Module 8).
-api = ["fastapi", "uvicorn"]
+api = ["fastapi", "uvicorn", "python-multipart", "pyarrow"]
 # Needed only to retrain the quality classifiers.
 train = ["scikit-learn"]
 

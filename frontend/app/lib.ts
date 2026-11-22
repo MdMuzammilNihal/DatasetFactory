@@ -11,7 +11,7 @@ export interface JobState {
   checkpoints: number; yield_rate: number; throughput_docs_per_s: number;
   mean_accepted_score: number | null; steady_throughput_docs_per_s: number;
 }
-export interface Meta { domains: string[]; modes: string[]; runtime: Record<string, unknown>; config_fingerprint: string; max_running: number }
+export interface Meta { domains: string[]; modes: string[]; runtime: Record<string, unknown>; config_fingerprint: string; max_running: number; upload?: { formats: string[]; max_mb: number } }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(API + path, init);
