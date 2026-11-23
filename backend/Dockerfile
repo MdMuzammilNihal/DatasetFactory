@@ -1,6 +1,7 @@
 FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     HF_HOME=/hf-cache
 
@@ -10,7 +11,9 @@ COPY pyproject.toml ./
 COPY dataset_factory ./dataset_factory
 COPY config ./config
 COPY models ./models
-RUN pip install -e ".[api]"
+# No bytecode and no build tooling in the final image (the package is installed in place).
+RUN pip install --no-compile -e ".[api]" \
+    && pip uninstall -y pip setuptools wheel
 
 RUN useradd --create-home app \
     && mkdir -p /app/runs /hf-cache \
