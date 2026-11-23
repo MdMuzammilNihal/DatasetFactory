@@ -23,3 +23,4 @@ runs/
 backend/runs_check_*.log
 *.tsbuildinfo
 runs-demo/
+CLAUDE.md

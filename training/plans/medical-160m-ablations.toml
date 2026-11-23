@@ -1,4 +1,4 @@
-# Medical ablations, 1 seed (seed variance of perplexity is ~0.01, see CLAUDE.md 10d).
+# Medical ablations, 1 seed (seed variance of perplexity is ~0.01).
 # Shares name and folders with plans/medical-160m.toml, so finished steps (random s0) are reused.
 # Only the ablations whose datasets differ from curated: no-validator (85.5% identical) and
 # no-score (93.2%). no-global-filter (99.8%), no-classifier (99.9%), no-dedup (100%) are not trained.

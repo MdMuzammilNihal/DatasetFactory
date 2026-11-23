@@ -1,4 +1,4 @@
-# Resume and GitHub copy (every number is measured in this repository; see README and CLAUDE.md)
+# Resume and GitHub copy (every number is measured in this repository; see README)
 
 ## GitHub "About" (one line) and topics
 Reproducible multi-domain data-curation pipeline for LLM pretraining, with an evaluation framework that measures when curation actually helps (FastAPI, Next.js, PyTorch).
