@@ -56,9 +56,12 @@ docker compose up --build        # then open http://localhost:3000
 Starts the API (`:8000`) and the dashboard (`:3000`). In the new-job form pick **synthetic data** for an instant
 demo; real data streams from Hugging Face and takes 20-110 s per source to start. The first job downloads the
 Pythia tokenizer once (cached in a volume). Stop with `docker compose down`; job results live in the `runs` volume
-(`docker compose down -v` deletes them). The browser calls the API, so for another host rebuild with
-`NEXT_PUBLIC_API_URL=http://<host>:8000 docker compose up --build`. Images are about 620 MB (API) and 440 MB
-(dashboard); training dependencies are not included. CI builds both on every push.
+(`docker compose down -v` deletes them). Images are about 620 MB (API) and 440 MB (dashboard); training
+dependencies are not included. CI builds both on every push.
+
+**Local use only:** the API and dashboard have no login, so compose publishes both ports on `127.0.0.1` (your
+machine) only. Do not expose them to a network or the internet as they are: anyone who can reach the API can start
+jobs, upload files and download results.
 
 ## Setup
 

@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from .. import __version__
-from ..config import Config, ConfigError, load_config
+from ..config import Config, ConfigError
 from ..orchestrator import MODES, STATUSES, JobSpec, runtime_settings
 from ..validators import DOMAINS
 from .uploads import (MAX_BYTES, FORMATS, UploadError, UploadNotFound, delete_upload, list_uploads,
