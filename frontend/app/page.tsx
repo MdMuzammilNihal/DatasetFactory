@@ -71,16 +71,16 @@ export default function Home() {
       <div className="card" id="jobs">
         <h2>Jobs</h2>
         {jobs.length === 0 ? <span className="mute">no jobs yet</span> : (
-          <table>
+          <table className="jobs">
             <thead><tr><th>Job</th><th>Status</th><th>Mode</th><th className="num">Accepted</th><th className="num">Candidates</th>
               <th className="num">Yield</th><th className="num">Tokens</th><th className="num">Time</th></tr></thead>
             <tbody>{jobs.map((j) => (
               <tr key={j.job_id}>
-                <td><a href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}>{j.job_id}</a></td>
-                <td><Badge status={j.status} /></td><td>{j.mode}</td>
-                <td className="num">{n(j.accepted)}</td><td className="num">{n(j.candidates)}</td>
-                <td className="num">{ACTIVE.includes(j.status) && !j.candidates ? "–" : pct(j.yield_rate)}</td>
-                <td className="num">{n(j.tokens)}</td><td className="num">{dur(j.elapsed_seconds)}</td>
+                <td className="c-job"><a href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}>{j.job_id}</a></td>
+                <td className="c-status"><Badge status={j.status} /></td><td className="c-mode">{j.mode}</td>
+                <td className="num c-acc" data-label="accepted">{n(j.accepted)}</td><td className="num c-cand">{n(j.candidates)}</td>
+                <td className="num c-yield" data-label="yield">{ACTIVE.includes(j.status) && !j.candidates ? "–" : pct(j.yield_rate)}</td>
+                <td className="num c-tok">{n(j.tokens)}</td><td className="num c-time" data-label="time">{dur(j.elapsed_seconds)}</td>
               </tr>))}</tbody>
           </table>
         )}

@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <div className="shell">
           <aside className="side">
-            <a className="brand" href="/"><span className="logo">◆</span>Dataset Factory</a>
+            <a className="brand" href="/"><span className="logo">◆</span><span className="brandname">Dataset Factory</span></a>
             <div>
               <h6>Menu</h6>
               <nav>

@@ -94,7 +94,7 @@ export function Browser({ jobId, kind, refreshKey }: { jobId: string; kind: "rec
         const p = (r.provenance ?? {}) as Record<string, unknown>;
         return (
           <div className="card rec" key={String(r.id) + i}>
-            <div className="row spread">
+            <div className="row spread rechead">
               <span><b>#{offset + i + 1}</b> <span className="mute">{String(p.source)} · {String(p.agent)} · {String(p.license)}</span></span>
               <span className="meta"><span className="pill">score {String(r.quality_score)}</span><span className="pill">{n(Number(r.n_tokens))} tokens</span></span>
             </div>
@@ -102,11 +102,11 @@ export function Browser({ jobId, kind, refreshKey }: { jobId: string; kind: "rec
           </div>
         );
       }) : rows.length > 0 && (
-        <div className="card"><table>
+        <div className="card"><table className="rej">
           <thead><tr><th>#</th><th>label</th><th>source</th><th>agent</th><th className="num">score</th></tr></thead>
           <tbody>{rows.map((r, i) => (
-            <tr key={i}><td>{offset + i + 1}</td><td>{String(r.label)}</td><td>{String(r.source)}</td>
-              <td>{String(r.agent)}</td><td className="num">{r.score == null ? "–" : String(r.score)}</td></tr>
+            <tr key={i}><td className="c-n">{offset + i + 1}</td><td className="c-label">{String(r.label)}</td><td className="c-src">{String(r.source)}</td>
+              <td className="c-agent">{String(r.agent)}</td><td className="num c-score">{r.score == null ? "–" : String(r.score)}</td></tr>
           ))}</tbody>
         </table></div>
       )}
