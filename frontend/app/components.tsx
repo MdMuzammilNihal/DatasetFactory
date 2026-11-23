@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { api, n, type Counts } from "./lib";
+import { api, n, pct, type Counts, type JobState } from "./lib";
 
 export function Badge({ status }: { status: string }) {
   return <span className={`badge ${status}`}>{status}</span>;
@@ -114,6 +114,56 @@ export function Browser({ jobId, kind, refreshKey }: { jobId: string; kind: "rec
         <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>← Prev</button>
         <button disabled={!more} onClick={() => setOffset(offset + limit)}>Next →</button>
         <span className="mute">{rows.length ? `${offset + 1}–${offset + rows.length}` : ""}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Accepted vs rejected documents for the most recent jobs, as paired bars. */
+export function JobsChart({ jobs }: { jobs: JobState[] }) {
+  const rows = jobs.filter((j) => j.candidates > 0).slice(0, 8).reverse();
+  const max = Math.max(1, ...rows.map((j) => j.candidates));
+  return (
+    <div className="card">
+      <div className="row spread"><h2>Documents per job</h2>
+        <span className="legend"><i className="dot a" />accepted<i className="dot r" />rejected</span></div>
+      {rows.length === 0 ? <span className="mute">no data yet</span> : (
+        <div className="bars">
+          {rows.map((j) => (
+            <a key={j.job_id} className="barcol" href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}
+               title={`${j.job_id}: ${j.accepted} accepted of ${j.candidates} read`}>
+              <div className="stack" style={{ height: `${(j.candidates / max) * 100}%` }}>
+                <div className="r" style={{ flex: j.candidates - j.accepted }} />
+                <div className="a" style={{ flex: j.accepted }} />
+              </div>
+              <span>{j.domain}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Donut of the overall yield (accepted / candidates read) with the jobs-by-status counts below it. */
+export function YieldDonut({ jobs }: { jobs: JobState[] }) {
+  const read = jobs.reduce((a, j) => a + j.candidates, 0);
+  const acc = jobs.reduce((a, j) => a + j.accepted, 0);
+  const frac = read ? acc / read : 0;
+  const R = 52, C = 2 * Math.PI * R;
+  const status: Counts = {};
+  jobs.forEach((j) => { status[j.status] = (status[j.status] ?? 0) + 1; });
+  return (
+    <div className="card donut">
+      <h2>Overall yield</h2>
+      <svg viewBox="0 0 140 140" role="img" aria-label={`overall yield ${pct(frac)}`}>
+        <circle cx="70" cy="70" r={R} className="ring" />
+        <circle cx="70" cy="70" r={R} className="arc" strokeDasharray={`${frac * C} ${C}`} transform="rotate(-90 70 70)" />
+        <text x="70" y="68" textAnchor="middle" className="big">{read ? pct(frac) : "–"}</text>
+        <text x="70" y="86" textAnchor="middle" className="sub">accepted</text>
+      </svg>
+      <div className="chips">
+        {Object.entries(status).map(([k, v]) => <span key={k} className="chip"><Badge status={k} /> {v}</span>)}
       </div>
     </div>
   );

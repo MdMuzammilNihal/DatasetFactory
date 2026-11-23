@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api, ACTIVE, dur, n, pct, type JobState, type Meta } from "./lib";
-import { Badge } from "./components";
+import { Badge, JobsChart, YieldDonut } from "./components";
 
 type Target = "max_documents" | "max_tokens" | "max_candidates";
 
@@ -66,6 +66,7 @@ export default function Home() {
         <div className="kpi t4"><span>Overall yield</span><b>{cand ? pct(accepted / cand) : "–"}</b><small>{n(cand)} candidates read</small></div>
       </div>
       {error && <p className="err">{error}</p>}
+      <div className="charts"><JobsChart jobs={jobs} /><YieldDonut jobs={jobs} /></div>
       <div className="cols">
       <div className="card" id="jobs">
         <h2>Jobs</h2>

@@ -81,8 +81,10 @@ function Detail() {
         <CountTable title="Rejected by label" data={state.rejected} />
         <NestedTable title="By source" data={state.by_source} />
         <NestedTable title="By agent" data={state.by_agent} />
-        <CountTable title="Licences" data={state.licenses} />
-        <CountTable title="PII removed" data={state.pii_removed} empty="nothing removed" />
+        <div className="stack">
+          <CountTable title="Licences" data={state.licenses} />
+          <CountTable title="PII removed" data={state.pii_removed} empty="nothing removed" />
+        </div>
       </div>
       <h2 className="browse">Browse</h2>
       <div className="tabs">

@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { Badge, Browser, CountTable, Histogram, NestedTable, Stat } from "../app/components";
-import { mockApi } from "./helpers";
+import { Badge, Browser, CountTable, Histogram, JobsChart, NestedTable, Stat, YieldDonut } from "../app/components";
+import { job, mockApi } from "./helpers";
 
 describe("small components", () => {
   it("Badge puts the status in its class", () => {
@@ -105,5 +105,28 @@ describe("Browser", () => {
     mockApi({});
     render(<Browser jobId="j1" kind="records" refreshKey={0} />);
     await waitFor(() => expect(screen.getByText(/404/)).toHaveClass("err"));
+  });
+});
+
+describe("dashboard charts", () => {
+  it("JobsChart sizes bars by candidates and links to the job", () => {
+    const { container } = render(<JobsChart jobs={[job({ job_id: "a", candidates: 1000, accepted: 600 }), job({ job_id: "b", candidates: 500, accepted: 500 })]} />);
+    const cols = Array.from(container.querySelectorAll(".barcol")) as HTMLElement[];
+    expect(cols).toHaveLength(2);
+    expect(cols.map((c) => (c.querySelector(".stack") as HTMLElement).style.height).sort()).toEqual(["100%", "50%"]);
+    expect(container.querySelector('a[href="/jobs/view?id=a"]')).not.toBeNull();
+  });
+  it("JobsChart says so when nothing has been read yet", () => {
+    render(<JobsChart jobs={[job({ candidates: 0, accepted: 0 })]} />);
+    expect(screen.getByText("no data yet")).toBeInTheDocument();
+  });
+  it("YieldDonut shows the overall yield and counts jobs by status", () => {
+    render(<YieldDonut jobs={[job(), job({ job_id: "x", status: "failed", candidates: 0, accepted: 0 })]} />);
+    expect(screen.getByLabelText("overall yield 60.0%")).toBeInTheDocument();
+    expect(screen.getByText("failed")).toBeInTheDocument();
+  });
+  it("YieldDonut shows a dash with no jobs", () => {
+    render(<YieldDonut jobs={[]} />);
+    expect(screen.getByLabelText("overall yield 0.0%")).toBeInTheDocument();
   });
 });
