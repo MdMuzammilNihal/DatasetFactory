@@ -1,0 +1,33 @@
+# One command: docker compose up --build   (dashboard on :3000, API on :8000)
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - runs:/app/runs
+      - hf-cache:/hf-cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./frontend
+      args:
+        # The browser calls the API, so this must be reachable from your browser.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  runs:
+  hf-cache:

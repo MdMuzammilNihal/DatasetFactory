@@ -1,0 +1,10 @@
+runs/
+runs_check_*.log
+data/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+tests/
+.git

@@ -1,0 +1,6 @@
+.git
+runs/
+data/
+.venv/
+node_modules/
+.next/

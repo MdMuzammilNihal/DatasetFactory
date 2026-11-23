@@ -46,6 +46,18 @@ Then, in the main process: deduplication (exact hash, then MinHash at 0.85) and 
   perplexity and PubMedQA evaluation, QLoRA, an experiment runner (seeds, summaries, paired bootstrap), Colab notebook
   (untested).
 
+## Docker (one command)
+
+```bash
+docker compose up --build        # then open http://localhost:3000
+```
+
+Starts the API (`:8000`) and the dashboard (`:3000`). In the new-job form pick **synthetic data** for an instant
+demo; real data streams from Hugging Face and takes 20-110 s per source to start. The first job downloads the
+Pythia tokenizer once (cached in a volume). Stop with `docker compose down`; job results live in the `runs` volume
+(`docker compose down -v` deletes them). The browser calls the API, so for another host rebuild with
+`NEXT_PUBLIC_API_URL=http://<host>:8000 docker compose up --build`.
+
 ## Setup
 
 Tested on Windows 11, Python 3.13, Node 22, RTX 4060 Laptop (8 GB), 24 GB RAM. Keep the project in a short path.
