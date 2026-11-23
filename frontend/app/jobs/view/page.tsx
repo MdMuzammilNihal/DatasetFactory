@@ -42,8 +42,12 @@ function Detail() {
 
   return (
     <>
-      <div className="row spread" style={{ marginBottom: 12 }}>
-        <div className="row"><a href="/">← Jobs</a><h1>{state.job_id}</h1><Badge status={state.status} /></div>
+      <div className="pagehead">
+        <div>
+          <a className="crumb" href="/">← Jobs</a>
+          <div className="row"><h1>{state.job_id}</h1><Badge status={state.status} /></div>
+          <p>{state.domain} · {state.mode}{state.started_at ? ` · started ${new Date(state.started_at).toLocaleString()}` : ""}</p>
+        </div>
         <div className="row">
           {active && <button onClick={() => act("stop")}>Stop</button>}
           {["stopped", "interrupted"].includes(state.status) && <button className="primary" onClick={() => act("resume")}>Resume</button>}
@@ -53,7 +57,7 @@ function Detail() {
       {error && <p className="err">{error}</p>}
       {state.message && <p className="mute">{state.message}</p>}
       {target && (
-        <div className="card"><div className="row spread"><span>{target.replace("max_", "")} target: {n(have)} / {n(Number(spec![target]))}</span>
+        <div className="card progress"><div className="row spread"><span>{target.replace("max_", "")} target: {n(have)} / {n(Number(spec![target]))}</span>
           <span className="mute">{pct(progress)}</span></div>
           <div className="bar"><i style={{ width: `${progress * 100}%` }} /></div></div>
       )}
@@ -72,15 +76,15 @@ function Detail() {
         <div className="card"><h2 className="err">Source errors ({state.source_errors.length})</h2>
           <pre className="text">{state.source_errors.map((e) => JSON.stringify(e)).join("\n")}</pre></div>
       )}
-      <div className="grid g2">
-        <CountTable title="Rejected by label" data={state.rejected} />
+      <div className="grid detail">
         <Histogram bins={state.score_histogram} />
+        <CountTable title="Rejected by label" data={state.rejected} />
         <NestedTable title="By source" data={state.by_source} />
         <NestedTable title="By agent" data={state.by_agent} />
         <CountTable title="Licences" data={state.licenses} />
         <CountTable title="PII removed" data={state.pii_removed} empty="nothing removed" />
       </div>
-      <h2 style={{ marginTop: 8 }}>Browse</h2>
+      <h2 className="browse">Browse</h2>
       <div className="tabs">
         <button className={tab === "records" ? "on" : ""} onClick={() => setTab("records")}>Accepted records</button>
         <button className={tab === "rejections" ? "on" : ""} onClick={() => setTab("rejections")}>Rejections</button>

@@ -53,7 +53,7 @@ export function NestedTable({ title, data }: { title: string; data: Record<strin
 export function Histogram({ bins }: { bins: number[] }) {
   const max = Math.max(1, ...bins);
   return (
-    <div className="card">
+    <div className="card wide">
       <h2>Quality score of accepted documents</h2>
       <div className="hist">
         {bins.map((v, i) => (
@@ -93,10 +93,10 @@ export function Browser({ jobId, kind, refreshKey }: { jobId: string; kind: "rec
       {kind === "records" ? rows.map((r, i) => {
         const p = (r.provenance ?? {}) as Record<string, unknown>;
         return (
-          <div className="card" key={String(r.id) + i}>
+          <div className="card rec" key={String(r.id) + i}>
             <div className="row spread">
               <span><b>#{offset + i + 1}</b> <span className="mute">{String(p.source)} · {String(p.agent)} · {String(p.license)}</span></span>
-              <span className="mute">score {String(r.quality_score)} · {n(Number(r.n_tokens))} tokens</span>
+              <span className="meta"><span className="pill">score {String(r.quality_score)}</span><span className="pill">{n(Number(r.n_tokens))} tokens</span></span>
             </div>
             <pre className="text">{String(r.text)}</pre>
           </div>
