@@ -22,7 +22,7 @@ button:disabled { opacity:.5; cursor:default; }
 table { width:100%; border-collapse:collapse; } th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
 th { color:var(--mute); font-weight:500; font-size:12px; } td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; }
 .badge { padding:2px 10px; font-weight:500; border-radius:99px; font-size:12px; background:var(--line); }
-.badge.running,.badge.pending { background:var(--accent-soft); color:var(--accent); } .badge.completed { background:#18864b22; color:var(--ok); }
+.badge.running,.badge.pending,.badge.stopping { background:var(--accent-soft); color:var(--accent); } .badge.completed { background:#18864b22; color:var(--ok); }
 .badge.failed,.badge.interrupted { background:#c2352b22; color:var(--bad); } .badge.stopped,.badge.exhausted { background:#b7791f22; color:var(--warn); }
 .bar { height:8px; background:var(--line); border-radius:4px; overflow:hidden; } .bar i { display:block; height:100%; background:var(--accent); }
 .hist { display:flex; align-items:flex-end; gap:2px; height:110px; } .hist div { flex:1; background:var(--accent); min-height:1px; border-radius:2px 2px 0 0; }
@@ -131,3 +131,10 @@ pre.text { font:13.5px/1.65 "IBM Plex Serif",Georgia,serif; background:var(--bg)
 .theme { display:flex; align-items:center; gap:10px; width:100%; padding:9px 10px; border-radius:10px; border:0; background:transparent; color:var(--mute); font-weight:500; cursor:pointer; text-align:left; }
 .theme:hover { background:var(--accent-soft); color:var(--ink); }
 @media (max-width:800px) { .theme { width:auto; white-space:nowrap; padding:8px 10px; } .theme .tl { display:none; } .side .themewrap { margin-left:auto; } }
+/* Count tables: long source names wrap anywhere, numbers stay on one line, so the table fits its card. */
+table.nested td.k { overflow-wrap:anywhere; } table.nested .num { white-space:nowrap; }
+/* Delete controls */
+button.icon { padding:6px; border-radius:8px; color:var(--mute); line-height:0; } button.icon:hover:not(:disabled) { color:var(--bad); border-color:var(--bad); }
+button.danger { color:var(--bad); border-color:var(--bad); background:transparent; padding:5px 12px; font-size:13px; } button.danger:hover:not(:disabled) { background:var(--bad); color:#fff; }
+table.jobs td.num { white-space:nowrap; } table.jobs td.c-del { text-align:right; width:1%; }
+@media (max-width:640px) { table.jobs td.c-del { grid-column:4; grid-row:2; align-self:end; } }

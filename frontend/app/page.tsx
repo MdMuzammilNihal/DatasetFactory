@@ -48,6 +48,26 @@ export default function Home() {
     } catch (err) { setError(String(err)); setBusy(false); }
   }
 
+  async function removeJob(j: JobState) {
+    if (!window.confirm(`Delete ${j.job_id} and all its data? This cannot be undone.`)) return;
+    try {
+      await api<void>(`/api/jobs/${encodeURIComponent(j.job_id)}`, { method: "DELETE" });
+      setJobs((old) => old.filter((x) => x.job_id !== j.job_id)); setError("");
+    } catch (err) { setError(String(err)); }
+  }
+
+  async function clearAll() {
+    const finished = jobs.filter((j) => !ACTIVE.includes(j.status));
+    if (!finished.length) return;
+    const what = finished.length === 1 ? "the 1 finished job and its data" : `all ${finished.length} finished jobs and their data`;
+    if (!window.confirm(`Delete ${what}? Running jobs are kept. This cannot be undone.`)) return;
+    try {
+      const out = await api<{ deleted: string[] }>("/api/jobs?confirm=true", { method: "DELETE" });
+      const gone = new Set(out.deleted);
+      setJobs((old) => old.filter((x) => !gone.has(x.job_id))); setError("");
+    } catch (err) { setError(String(err)); }
+  }
+
   const done = jobs.filter((j) => j.status === "completed");
   const accepted = jobs.reduce((a, j) => a + (j.accepted || 0), 0);
   const tokens = jobs.reduce((a, j) => a + (j.tokens || 0), 0);
@@ -69,11 +89,15 @@ export default function Home() {
       <div className="charts"><JobsChart jobs={jobs} /><YieldDonut jobs={jobs} /></div>
       <div className="cols">
       <div className="card" id="jobs">
-        <h2>Jobs</h2>
+        <div className="row spread">
+          <h2>Jobs</h2>
+          <button className="danger" onClick={clearAll} disabled={!jobs.some((j) => !ACTIVE.includes(j.status))}
+            title="Delete every finished job and its data">Clear all</button>
+        </div>
         {jobs.length === 0 ? <span className="mute">no jobs yet</span> : (
           <table className="jobs">
             <thead><tr><th>Job</th><th>Status</th><th>Mode</th><th className="num">Accepted</th><th className="num">Candidates</th>
-              <th className="num">Yield</th><th className="num">Tokens</th><th className="num">Time</th></tr></thead>
+              <th className="num">Yield</th><th className="num">Tokens</th><th className="num">Time</th><th /></tr></thead>
             <tbody>{jobs.map((j) => (
               <tr key={j.job_id}>
                 <td className="c-job"><a href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}>{j.job_id}</a></td>
@@ -81,6 +105,14 @@ export default function Home() {
                 <td className="num c-acc" data-label="accepted">{n(j.accepted)}</td><td className="num c-cand">{n(j.candidates)}</td>
                 <td className="num c-yield" data-label="yield">{ACTIVE.includes(j.status) && !j.candidates ? "–" : pct(j.yield_rate)}</td>
                 <td className="num c-tok">{n(j.tokens)}</td><td className="num c-time" data-label="time">{dur(j.elapsed_seconds)}</td>
+                <td className="c-del">
+                  <button className="icon" onClick={() => removeJob(j)} disabled={ACTIVE.includes(j.status)}
+                    aria-label={`Delete ${j.job_id}`} title={ACTIVE.includes(j.status) ? "Stop the job before deleting it" : "Delete this job"}>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6" />
+                    </svg>
+                  </button>
+                </td>
               </tr>))}</tbody>
           </table>
         )}

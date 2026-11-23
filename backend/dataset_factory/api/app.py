@@ -119,6 +119,17 @@ def create_app(config: Config | None = None, output_dir: str | Path | None = Non
     def list_jobs():
         return manager.list()
 
+    @app.delete("/api/jobs/{job_id}", status_code=204)
+    def delete_job(job_id: str):
+        manager.delete(job_id)
+
+    @app.delete("/api/jobs")
+    def clear_jobs(confirm: bool = Query(False)):
+        """Delete all finished jobs (running ones are kept). Needs ``?confirm=true`` so a stray call does nothing."""
+        if not confirm:
+            raise HTTPException(400, "pass ?confirm=true to delete every finished job")
+        return manager.delete_all()
+
     @app.post("/api/jobs", status_code=202)
     def start_job(req: JobRequest):
         fields = req.model_dump(exclude={"upload_id", "input_license"})

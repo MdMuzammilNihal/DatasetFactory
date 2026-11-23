@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { API, api, ACTIVE, dur, n, pct, type JobState } from "../../lib";
 import { Badge, Browser, CountTable, Histogram, NestedTable, Stat } from "../../components";
@@ -11,26 +11,57 @@ function Detail() {
   const [error, setError] = useState("");
   const [tab, setTab] = useState<"records" | "rejections">("records");
   const [tick, setTick] = useState(0);
+  const [now, setNow] = useState(0);
+  const [busy, setBusy] = useState<"" | "stop" | "resume">("");
+  // Live clock: anchored to the last *new* server value, so a repeated (stale) value does not pull it back,
+  // and never shown lower than before while the job runs.
+  const anchor = useRef({ server: -1, at: 0 });
+  const shown = useRef(0);
 
+  const show = useCallback((s: JobState) => {
+    if (s.elapsed_seconds !== anchor.current.server) anchor.current = { server: s.elapsed_seconds, at: Date.now() };
+    setState(s);
+  }, []);
   const refresh = useCallback(() =>
     api<{ state: JobState; spec: Record<string, unknown> }>(`/api/jobs/${id}`)
-      .then((r) => { setState(r.state); setSpec(r.spec); setError(""); }).catch((e) => setError(String(e))), [id]);
+      .then((r) => { show(r.state); setSpec(r.spec); setError(""); }).catch((e) => setError(String(e))), [id, show]);
 
   useEffect(() => { if (id) refresh(); }, [id, refresh]);
 
-  const active = state ? ACTIVE.includes(state.status) : false;
-  // Live progress by SSE while the job is active; the stream ends by itself at a terminal status.
+  const status = state?.status ?? "";
+  const active = ACTIVE.includes(status);
+  // Live progress by SSE while the job is active. The browser reconnects a dropped stream by itself,
+  // and a slow poll covers the case where it cannot, so the page never stays stuck on "running".
   useEffect(() => {
     if (!id || !active) return;
     const es = new EventSource(`${API}/api/jobs/${id}/events`);
-    es.addEventListener("progress", (e) => { setState(JSON.parse((e as MessageEvent).data)); setTick((t) => t + 1); });
-    es.addEventListener("end", () => { es.close(); refresh(); setTick((t) => t + 1); });
-    es.onerror = () => { es.close(); setTimeout(refresh, 2000); };
-    return () => es.close();
-  }, [id, active, refresh]);
+    es.addEventListener("progress", (e) => show(JSON.parse((e as MessageEvent).data)));
+    es.addEventListener("end", () => { es.close(); refresh(); });
+    const poll = setInterval(refresh, 3000);
+    return () => { es.close(); clearInterval(poll); };
+  }, [id, active, refresh, show]);
+
+  // When the job leaves the active states, load the final state and spec once and reload the record lists.
+  const [wasActive, setWasActive] = useState(false);
+  useEffect(() => {
+    if (active) { setWasActive(true); return; }
+    if (wasActive) { setWasActive(false); refresh(); setTick((t) => t + 1); }
+  }, [active, wasActive, refresh]);
+
+  // A clock that ticks every second while the job runs, between server updates.
+  const ticking = status === "running" || status === "stopping";
+  useEffect(() => {
+    if (!ticking) return;
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [ticking]);
 
   async function act(what: "stop" | "resume") {
-    try { await api(`/api/jobs/${id}/${what}`, { method: "POST" }); await refresh(); } catch (e) { setError(String(e)); }
+    setBusy(what);
+    try { await api(`/api/jobs/${id}/${what}`, { method: "POST" }); await refresh(); }
+    catch (e) { setError(String(e)); await refresh(); }
+    finally { setBusy(""); }
   }
 
   if (!id) return <p className="err">No job id.</p>;
@@ -39,6 +70,15 @@ function Detail() {
   const have = target === "max_documents" ? state.accepted : target === "max_tokens" ? state.tokens : state.candidates;
   const progress = target ? Math.min(1, have / Number(spec![target])) : 0;
   const rejectedTotal = Object.values(state.rejected).reduce((a, b) => a + b, 0);
+  let elapsed = state.elapsed_seconds;
+  if (ticking) {
+    const { server, at } = anchor.current;
+    elapsed = Math.max(shown.current, server + Math.max(0, now - at) / 1000);
+    shown.current = elapsed;
+  } else {
+    shown.current = 0;                                   // finished: show the server's exact total
+  }
+  const stopping = status === "stopping" || busy === "stop";
 
   return (
     <>
@@ -49,13 +89,16 @@ function Detail() {
           <p>{state.domain} · {state.mode}{state.started_at ? ` · started ${new Date(state.started_at).toLocaleString()}` : ""}</p>
         </div>
         <div className="row">
-          {active && <button onClick={() => act("stop")}>Stop</button>}
-          {["stopped", "interrupted"].includes(state.status) && <button className="primary" onClick={() => act("resume")}>Resume</button>}
+          {active && <button onClick={() => act("stop")} disabled={stopping}>{stopping ? "Stopping…" : "Stop"}</button>}
+          {["stopped", "interrupted"].includes(state.status) && (
+            <button className="primary" onClick={() => act("resume")} disabled={busy === "resume"}>{busy === "resume" ? "Resuming…" : "Resume"}</button>
+          )}
           {state.accepted > 0 && <a className="btn" href={`${API}/api/jobs/${id}/download`}>Download data.jsonl</a>}
         </div>
       </div>
       {error && <p className="err">{error}</p>}
       {state.message && <p className="mute">{state.message}</p>}
+      {status === "stopping" && <p className="mute">Stopping: the job finishes the chunk it is reading, saves a checkpoint and then stops (while sources are still opening this can take a minute).</p>}
       {target && (
         <div className="card progress"><div className="row spread"><span>{target.replace("max_", "")} target: {n(have)} / {n(Number(spec![target]))}</span>
           <span className="mute">{pct(progress)}</span></div>
@@ -70,7 +113,7 @@ function Detail() {
         <Stat label="docs/s (wall)" value={String(state.throughput_docs_per_s)} />
         <Stat label="docs/s (steady)" value={String(state.steady_throughput_docs_per_s)} />
         <Stat label="mean score" value={state.mean_accepted_score?.toFixed(3) ?? "–"} />
-        <Stat label="elapsed" value={dur(state.elapsed_seconds)} />
+        <Stat label="elapsed" value={dur(elapsed)} />
       </div>
       {state.source_errors.length > 0 && (
         <div className="card"><h2 className="err">Source errors ({state.source_errors.length})</h2>

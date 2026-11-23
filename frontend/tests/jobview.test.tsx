@@ -74,7 +74,9 @@ describe("job detail page", () => {
     act(() => es.emit("end"));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Stop" })).not.toBeInTheDocument());
     expect(es.closed).toBe(true);
-    expect(calls.filter((c) => c.path === "/api/jobs/legal-1")).toHaveLength(2);   // initial load + refresh at the end
+    // initial load + at least one refresh at the end, which brings the final state without a page reload
+    expect(calls.filter((c) => c.path === "/api/jobs/legal-1").length).toBeGreaterThanOrEqual(2);
+    expect(within(statTile("accepted")).getByText("600")).toBeInTheDocument();
   });
 
   it("stops a running job from the Stop button", async () => {
@@ -86,6 +88,34 @@ describe("job detail page", () => {
     render(<JobPage />);
     await user.click(await screen.findByRole("button", { name: "Stop" }));
     await waitFor(() => expect(calls.some((c) => c.method === "POST" && c.path === "/api/jobs/legal-1/stop")).toBe(true));
+  });
+
+  it("shows a disabled Stopping… button while a stop is pending", async () => {
+    mockApi({ "GET /api/jobs/legal-1": detail(job({ status: "stopping" })), ...lists });
+    render(<JobPage />);
+    const btn = await screen.findByRole("button", { name: "Stopping…" });
+    expect(btn).toBeDisabled();
+    expect(screen.getByText(/saves a checkpoint and then stops/)).toBeInTheDocument();
+  });
+
+  it("ticks the elapsed clock every second while the job runs", async () => {
+    mockApi({ "GET /api/jobs/legal-1": detail(job({ status: "running", elapsed_seconds: 10 })), ...lists });
+    render(<JobPage />);
+    await waitFor(() => expect(within(statTile("elapsed")).getByText("10s")).toBeInTheDocument());
+    await waitFor(() => expect(within(statTile("elapsed")).queryByText("10s")).not.toBeInTheDocument(), { timeout: 2500 });
+    expect(within(statTile("elapsed")).getByText(/^1[12]s$/)).toBeInTheDocument();
+  });
+
+  it("does not move the clock back when the server repeats an old elapsed value", async () => {
+    mockApi({ "GET /api/jobs/legal-1": detail(job({ status: "running", elapsed_seconds: 10 })), ...lists });
+    render(<JobPage />);
+    await waitFor(() => expect(FakeEventSource.instances).toHaveLength(1));
+    await waitFor(() => expect(within(statTile("elapsed")).getByText(/^1[12]s$/)).toBeInTheDocument(), { timeout: 2500 });
+    const es = FakeEventSource.instances[0];
+    act(() => es.emit("progress", job({ status: "running", elapsed_seconds: 10, accepted: 5 })));   // stale value again
+    expect(within(statTile("elapsed")).queryByText("10s")).not.toBeInTheDocument();
+    act(() => es.emit("progress", job({ status: "running", elapsed_seconds: 9.5, accepted: 6 })));  // even older
+    expect(within(statTile("elapsed")).getByText(/^1[12]s$/)).toBeInTheDocument();
   });
 
   it("offers Resume for a stopped job and posts it", async () => {

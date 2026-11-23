@@ -20,13 +20,16 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     try { const j = await res.json(); detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail); } catch {}
     throw new Error(`${res.status}: ${detail}`);
   }
+  if (res.status === 204) return undefined as T;     // e.g. DELETE: no body
   return res.json() as Promise<T>;
 }
 
 export const n = (v: number | undefined | null) => (v ?? 0).toLocaleString("en-US");
 export const pct = (v: number) => (v * 100).toFixed(1) + "%";
+/** Whole seconds: "7s", "1m 15s", "1h 2m 3s". */
 export const dur = (s: number) => {
-  const m = Math.floor(s / 60);
-  return m ? `${m}m ${Math.round(s % 60)}s` : `${s.toFixed(1)}s`;
+  const t = Math.max(0, Math.floor(s));
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+  return h ? `${h}h ${m}m ${sec}s` : m ? `${m}m ${sec}s` : `${sec}s`;
 };
-export const ACTIVE = ["pending", "running"];
+export const ACTIVE = ["pending", "running", "stopping"];

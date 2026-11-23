@@ -32,6 +32,11 @@ export function CountTable({ title, data, empty = "none yet" }: { title: string;
 }
 
 /** A name -> {counter: n} table (by_source, by_agent). */
+/** A long name with line-break chances after each "/", so source paths wrap at a path step, not mid-word. */
+function breakable(text: string) {
+  return text.split("/").flatMap((part, i) => (i ? [<wbr key={i} />, "/" + part] : [part]));
+}
+
 export function NestedTable({ title, data }: { title: string; data: Record<string, Counts> }) {
   const cols = Array.from(new Set(Object.values(data).flatMap((o) => Object.keys(o))));
   const rows = Object.entries(data);
@@ -39,10 +44,10 @@ export function NestedTable({ title, data }: { title: string; data: Record<strin
     <div className="card">
       <h2>{title}</h2>
       {rows.length === 0 ? <span className="mute">none yet</span> : (
-        <table>
+        <table className="nested">
           <thead><tr><th />{cols.map((c) => <th key={c} className="num">{c}</th>)}</tr></thead>
           <tbody>{rows.map(([k, o]) => (
-            <tr key={k}><td>{k}</td>{cols.map((c) => <td key={c} className="num">{n(o[c])}</td>)}</tr>
+            <tr key={k}><td className="k">{breakable(k)}</td>{cols.map((c) => <td key={c} className="num">{n(o[c])}</td>)}</tr>
           ))}</tbody>
         </table>
       )}

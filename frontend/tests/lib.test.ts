@@ -13,13 +13,15 @@ describe("formatting", () => {
     expect(pct(0.6)).toBe("60.0%");
     expect(pct(0.04567)).toBe("4.6%");
   });
-  it("dur switches to minutes", () => {
-    expect(dur(7.25)).toBe("7.3s");
+  it("dur shows whole seconds and switches to minutes and hours", () => {
+    expect(dur(7.25)).toBe("7s");
+    expect(dur(59.9)).toBe("59s");
+    expect(dur(3723)).toBe("1h 2m 3s");
     expect(dur(75)).toBe("1m 15s");
     expect(dur(600)).toBe("10m 0s");
   });
   it("ACTIVE lists the live statuses", () => {
-    expect(ACTIVE).toEqual(["pending", "running"]);
+    expect(ACTIVE).toEqual(["pending", "running", "stopping"]);
   });
 });
 

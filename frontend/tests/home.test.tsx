@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Home from "../app/page";
 import { META, job, mockApi } from "./helpers";
 
@@ -21,6 +21,50 @@ describe("Home page", () => {
     expect(done).toHaveTextContent("1m 15s");
     // a pending job that has read nothing yet has no yield to show
     expect(screen.getByRole("link", { name: "new-1" }).closest("tr")).toHaveTextContent("–");
+  });
+
+  it("deletes one job after confirmation and keeps the others", async () => {
+    const { calls } = mockApi({
+      ...base,
+      "GET /api/jobs": [job(), job({ job_id: "legal-2" })],
+      "DELETE /api/jobs/legal-2": new Response(null, { status: 204 }),
+    });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    const user = userEvent.setup();
+    render(<Home />);
+    await screen.findByRole("link", { name: "legal-2" });
+    await user.click(screen.getByRole("button", { name: "Delete legal-2" }));   // declined: nothing is sent
+    expect(calls.some((c) => c.method === "DELETE")).toBe(false);
+    await user.click(screen.getByRole("button", { name: "Delete legal-2" }));
+    await waitFor(() => expect(screen.queryByRole("link", { name: "legal-2" })).not.toBeInTheDocument());
+    expect(screen.getByRole("link", { name: "legal-1" })).toBeInTheDocument();
+    expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
+  it("will not delete a running job from the list", async () => {
+    mockApi({ ...base, "GET /api/jobs": [job({ job_id: "run-1", status: "running" })] });
+    render(<Home />);
+    expect(await screen.findByRole("button", { name: "Delete run-1" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Clear all" })).toBeDisabled();     // nothing finished to clear
+  });
+
+  it("Clear all asks first, then removes the finished jobs and keeps the running one", async () => {
+    const { calls } = mockApi({
+      ...base,
+      "GET /api/jobs": [job(), job({ job_id: "legal-2" }), job({ job_id: "run-1", status: "running" })],
+      "DELETE /api/jobs": () => ({ deleted: ["legal-1", "legal-2"], skipped: ["run-1"] }),
+    });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    const user = userEvent.setup();
+    render(<Home />);
+    await screen.findByRole("link", { name: "run-1" });
+    await user.click(screen.getByRole("button", { name: "Clear all" }));          // declined
+    expect(calls.some((c) => c.method === "DELETE")).toBe(false);
+    await user.click(screen.getByRole("button", { name: "Clear all" }));
+    await waitFor(() => expect(screen.queryByRole("link", { name: "legal-1" })).not.toBeInTheDocument());
+    expect(screen.getByRole("link", { name: "run-1" })).toBeInTheDocument();
+    expect(calls.find((c) => c.method === "DELETE")!.path).toBe("/api/jobs");
+    expect(confirm.mock.calls[1][0]).toMatch(/all 2 finished jobs/);
   });
 
   it("says so when there are no jobs", async () => {

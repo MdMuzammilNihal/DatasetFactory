@@ -46,6 +46,7 @@ import shutil
 import threading
 import time
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
@@ -283,8 +284,11 @@ class _InlineFuture:
     def __init__(self, value: ChunkResult) -> None:
         self._value = value
 
-    def result(self) -> ChunkResult:
+    def result(self, timeout: float | None = None) -> ChunkResult:
         return self._value
+
+    def done(self) -> bool:
+        return True
 
     def cancel(self) -> bool:
         return False
@@ -398,6 +402,7 @@ class Job:
         self.state = JobState(self.spec.job_id, self.spec.domain, self.spec.mode)  # type: ignore[arg-type]
         self._resume = _resume
         self._stop = threading.Event()
+        self._t0: float | None = None
         self._last_progress = 0.0
         self._last_chunk: Chunk | None = None
         # Each agent's position after its latest finished chunk: (positions, next_source).
@@ -411,6 +416,10 @@ class Job:
         self._stop.set()
 
     @property
+    def stop_requested(self) -> bool:
+        return self._stop.is_set()
+
+    @property
     def data_path(self) -> Path:
         return self.dir / "data.jsonl"
 
@@ -420,6 +429,8 @@ class Job:
         state.started_at = state.started_at or utc_now()
         run_start = time.perf_counter()
         t0 = run_start - state.elapsed_seconds        # elapsed time carries over a resume
+        self._t0 = t0
+        self._progress(force=True)                    # report "running" before sources open
         executor = None
         reader = None
         try:
@@ -463,7 +474,9 @@ class Job:
             raise
         finally:
             if reader is not None:
-                reader.close()
+                # On a user stop, do not wait long for a reader blocked on a network read (e.g. a source
+                # still opening): it is a daemon thread and closes its streams itself; the checkpoint is saved.
+                reader.close(timeout=2.0 if self._stop.is_set() else 30.0)
             if executor is not None:
                 executor.shutdown(wait=True, cancel_futures=True)
             self._close_files()
@@ -490,6 +503,7 @@ class Job:
                     break
                 chunk = reader.get(timeout=0.2 if pending else 0.5)
                 if chunk is None:                   # nothing ready yet
+                    self._progress()                # keeps elapsed time live while waiting
                     if pending:
                         break                       # work on what is already in flight
                     continue
@@ -503,7 +517,14 @@ class Job:
                     return "stopped"
                 return "exhausted" if sources_done else "completed"
             chunk, future = pending.popleft()
-            result: ChunkResult = future.result()
+            while True:                             # wait in short steps so elapsed time and speed stay live
+                try:
+                    result: ChunkResult = future.result(timeout=1.0)
+                    break
+                except FutureTimeout:
+                    if future.done():               # the task itself raised a TimeoutError: a real failure
+                        raise
+                    self._progress()
             done = self._merge(chunk, result, index)
             state.elapsed_seconds = time.perf_counter() - t0
             since_checkpoint += len(chunk.documents) + sum(chunk.prefiltered.values())
@@ -709,6 +730,8 @@ class Job:
         now = time.monotonic()
         if force or now - self._last_progress >= self.progress_every:
             self._last_progress = now
+            if self.state.status == "running" and self._t0 is not None:
+                self.state.elapsed_seconds = time.perf_counter() - self._t0
             self.on_progress(self.state.snapshot())
 
 
@@ -759,14 +782,14 @@ class _Reader:
             raise self._error
         return item
 
-    def close(self) -> None:
+    def close(self, timeout: float = 30.0) -> None:
         self._closed.set()
         while True:                            # unblock the reader if it waits on a full queue
             try:
                 self._queue.get_nowait()
             except queue.Empty:
                 break
-        self._thread.join(timeout=30)
+        self._thread.join(timeout=timeout)
 
 
 # ---------------------------------------------------------------------------

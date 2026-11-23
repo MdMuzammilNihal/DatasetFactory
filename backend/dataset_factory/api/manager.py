@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import threading
 from pathlib import Path
 from typing import Any
@@ -91,6 +92,33 @@ class JobManager:
         entry.job.stop()
         return self.get(job_id)
 
+    def delete(self, job_id: str) -> None:
+        """Remove a finished job and its folder (data, rejections, manifest). A live job must be stopped first."""
+        with self._lock:
+            path = self.job_dir(job_id)
+            entry = self._entries.get(job_id)
+            if entry is None and not (path / "manifest.json").exists():
+                raise JobNotFound(job_id)           # e.g. the shared "uploads" folder is not a job
+            if entry and entry.thread and entry.thread.is_alive():
+                raise JobConflict("job is still running; stop it first")
+            try:
+                shutil.rmtree(path)
+            except OSError as exc:
+                raise JobConflict(f"could not delete the job folder: {exc}") from exc
+            self._entries.pop(job_id, None)
+
+    def delete_all(self) -> dict[str, list[str]]:
+        """Delete every job that is not live; returns the deleted ids and the skipped (still live) ids."""
+        deleted: list[str] = []
+        skipped: list[str] = []
+        for row in self.list():
+            try:
+                self.delete(row["job_id"])
+                deleted.append(row["job_id"])
+            except (JobConflict, JobNotFound):
+                skipped.append(row["job_id"])
+        return {"deleted": deleted, "skipped": skipped}
+
     def resume(self, job_id: str) -> dict[str, Any]:
         path = self.job_dir(job_id)
         with self._lock:
@@ -118,6 +146,8 @@ class JobManager:
             data = dict(entry.snapshot)
             if entry.error:
                 data["message"] = entry.error
+            if entry.job.stop_requested and data.get("status") in ("pending", "running"):
+                data["status"] = "stopping"           # acts at the next chunk boundary
             return data
         path = self.job_dir(job_id)
         manifest = path / "manifest.json"
@@ -147,7 +177,8 @@ class JobManager:
                 rows.append(self.get(job_id))
             except (JobNotFound, OSError, ValueError, KeyError):
                 continue
-        rows.sort(key=lambda s: s.get("started_at") or "", reverse=True)
+        # Newest first; a job that has not reported its start time yet was just created, so it goes on top.
+        rows.sort(key=lambda s: s.get("started_at") or "~", reverse=True)
         return rows
 
     def uploads_in_use(self) -> set[str]:

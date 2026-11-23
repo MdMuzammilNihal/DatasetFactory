@@ -26,7 +26,7 @@ def _wait(client, job_id, timeout=60):
     end = time.time() + timeout
     while time.time() < end:
         state = client.get(f"/api/jobs/{job_id}").json()["state"]
-        if state["status"] not in ("pending", "running"):
+        if state["status"] not in ("pending", "running", "stopping"):
             return state
         time.sleep(0.2)
     raise AssertionError("job did not finish")
