@@ -1,6 +1,6 @@
 # Dataset Factory
 
-[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-284%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
+[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-289%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
 
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
 curation helps and when it does not**. It is a rebuild, from a college project paper, of a multi-agent curation system
