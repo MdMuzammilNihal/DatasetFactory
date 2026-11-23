@@ -1,6 +1,6 @@
 # Dataset Factory
 
-[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-307%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
+[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-313%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
 
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
 curation helps and when it does not**. It curates real Hugging Face corpora for six domains (general, news, medical,
@@ -15,7 +15,7 @@ legal, scientific, code), with a live dashboard, and measures the effect on Pyth
   and upload of your own data. One-command Docker demo.
 - Evaluation done carefully: same-source unfiltered baselines, per-stage ablations, 13-gram test-set decontamination,
   separate dev and test sets, 3 seeds, paired bootstrap confidence intervals.
-- 307 automated tests (backend, training, frontend) and CI on every push.
+- 313 automated tests (backend, training, frontend) and CI on every push.
 
 Measured on Pythia-160M with 20M-token corpora: curation clearly helps for general web text, helps a little for legal
 (~1.3%) and code (~0.5%) text inside a mixed corpus, and the medical filters add nothing measurable.
@@ -91,6 +91,9 @@ cd ../frontend; npm run dev                                        # dashboard a
 **Your own data:** tick "your data (upload)" on the new-job form (`.jsonl`, `.csv`, `.parquet` or `.txt`, max 200 MB),
 or use `POST /api/uploads` then `POST /api/jobs` with `upload_id`, or `curate DOMAIN --input f.jsonl`. Uploads can be
 listed and deleted through the API, and unused ones older than 14 days are removed at start-up.
+
+**Job names:** each job gets a permanent friendly name ("Legal 1", "Code random 2"; numbers are never reused after a delete) kept in
+`runs/job-names.json`; the real id (the folder name) shows as small text on the job page and as a tooltip.
 
 **Deleting jobs:** the trash icon on a job in the dashboard deletes that finished job and its data; **Clear all** deletes every
 finished job (running jobs are kept; both ask first). API: `DELETE /api/jobs/<id>` and `DELETE /api/jobs?confirm=true`.

@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { api, n, pct, type Counts, type JobState } from "./lib";
+import { api, label, n, pct, type Counts, type JobState } from "./lib";
 
 export function Badge({ status }: { status: string }) {
   return <span className={`badge ${status}`}>{status}</span>;
@@ -136,12 +136,12 @@ export function JobsChart({ jobs }: { jobs: JobState[] }) {
         <div className="bars">
           {rows.map((j) => (
             <a key={j.job_id} className="barcol" href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}
-               title={`${j.job_id}: ${j.accepted} accepted of ${j.candidates} read`}>
+               title={`${label(j)} (${j.job_id}): ${j.accepted} accepted of ${j.candidates} read`}>
               <div className="stack" style={{ height: `${(j.candidates / max) * 100}%` }}>
                 <div className="r" style={{ flex: j.candidates - j.accepted }} />
                 <div className="a" style={{ flex: j.accepted }} />
               </div>
-              <span>{j.domain}</span>
+              <span>{j.name || j.domain}</span>
             </a>
           ))}
         </div>

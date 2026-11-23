@@ -138,3 +138,4 @@ button.icon { padding:6px; border-radius:8px; color:var(--mute); line-height:0; 
 button.danger { color:var(--bad); border-color:var(--bad); background:transparent; padding:5px 12px; font-size:13px; } button.danger:hover:not(:disabled) { background:var(--bad); color:#fff; }
 table.jobs td.num { white-space:nowrap; } table.jobs td.c-del { text-align:right; width:1%; }
 @media (max-width:640px) { table.jobs td.c-del { grid-column:4; grid-row:2; align-self:end; } }
+.jid { color:var(--mute); font-size:12px; font-family:ui-monospace,Consolas,monospace; word-break:break-all; }

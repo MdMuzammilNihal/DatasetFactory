@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import Config, ConfigError, load_config
+from .names import JobNames
 from .uploads import UPLOAD_ID_RE
 from ..orchestrator import Job, JobSpec, default_output_dir, load_resumable
 
@@ -41,6 +42,7 @@ class JobManager:
         self.max_running = max_running
         self._entries: dict[str, _Entry] = {}
         self._lock = threading.Lock()
+        self._names = JobNames(self.output_dir)
 
     # -- helpers ------------------------------------------------------------
 
@@ -80,6 +82,7 @@ class JobManager:
             job = Job(spec, self.config, output_dir=self.output_dir, progress_every=0.5)
             entry = _Entry(job)
             self._entries[job.spec.job_id] = entry
+            self._names.assign(job.spec.job_id, spec.domain, spec.mode)
             self._launch(job, entry)
             return self.get(job.spec.job_id)
 
@@ -106,6 +109,7 @@ class JobManager:
             except OSError as exc:
                 raise JobConflict(f"could not delete the job folder: {exc}") from exc
             self._entries.pop(job_id, None)
+            self._names.forget(job_id)
 
     def delete_all(self) -> dict[str, list[str]]:
         """Delete every job that is not live; returns the deleted ids and the skipped (still live) ids."""
@@ -141,6 +145,13 @@ class JobManager:
     # -- queries ------------------------------------------------------------
 
     def get(self, job_id: str) -> dict[str, Any]:
+        data = self._state(job_id)
+        if not self._names.get(job_id):
+            self.list()                                   # first sight of an older job: name them all, oldest first
+        data["name"] = self._names.get(job_id)
+        return data
+
+    def _state(self, job_id: str) -> dict[str, Any]:
         entry = self._entries.get(job_id)
         if entry is not None:
             data = dict(entry.snapshot)
@@ -174,9 +185,10 @@ class JobManager:
         rows = []
         for job_id in ids:
             try:
-                rows.append(self.get(job_id))
+                rows.append(self._state(job_id))
             except (JobNotFound, OSError, ValueError, KeyError):
                 continue
+        self._names.sync(rows)
         # Newest first; a job that has not reported its start time yet was just created, so it goes on top.
         rows.sort(key=lambda s: s.get("started_at") or "~", reverse=True)
         return rows

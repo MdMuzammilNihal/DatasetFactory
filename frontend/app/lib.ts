@@ -2,7 +2,7 @@ export const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export type Counts = Record<string, number>;
 export interface JobState {
-  job_id: string; domain: string; mode: string; status: string; message: string;
+  job_id: string; name?: string; domain: string; mode: string; status: string; message: string;
   started_at: string; finished_at: string; elapsed_seconds: number;
   candidates: number; evaluated: number; accepted: number; tokens: number; words: number;
   rejected: Counts; by_source: Record<string, Counts>; by_agent: Record<string, Counts>;
@@ -32,4 +32,6 @@ export const dur = (s: number) => {
   const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
   return h ? `${h}h ${m}m ${sec}s` : m ? `${m}m ${sec}s` : `${sec}s`;
 };
+/** What people see: the friendly name ("Legal 2"), or the id for a job without one. */
+export const label = (j: { job_id: string; name?: string }) => j.name || j.job_id;
 export const ACTIVE = ["pending", "running", "stopping"];

@@ -10,7 +10,7 @@ Topics: `llm`, `data-curation`, `pretraining`, `nlp`, `fastapi`, `nextjs`, `pyto
 - Shipped a FastAPI backend and a live Next.js dashboard (SSE progress, rejection reasons, score histograms, record browser, stop/resume), runnable with one command via Docker Compose (images built in CI).
 - Designed the evaluation: same-source unfiltered baselines, per-stage ablations, 13-gram test-set decontamination, separate dev/test sets, 3 seeds, paired bootstrap CIs; ran 57 Pythia-160M continued-pretraining runs plus 4-bit QLoRA on 160M-1B models.
 - Found that domain filters help little: legal text about 1.3% and code about 0.5% lower perplexity inside a mixed corpus, medical none; curated general text beat raw FineWeb/Wikipedia on WikiText. Also found 10 WikiText test articles in the Wikipedia training data and that 55% PubMedQA accuracy at 160M equals always answering "yes".
-- 307 automated tests (229 backend, 30 training, 48 frontend), GitHub Actions CI.
+- 313 automated tests (233 backend, 30 training, 50 frontend), GitHub Actions CI.
 
 ## Two-line version
 Built and evaluated an LLM-pretraining data-curation system (300M-token run, resumable, dashboard) and a rigorous evaluation framework (baselines, ablations, decontamination, 3 seeds) that showed most domain filters add under 1.3%.

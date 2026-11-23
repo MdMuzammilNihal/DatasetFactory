@@ -118,6 +118,13 @@ describe("job detail page", () => {
     expect(within(statTile("elapsed")).getByText(/^1[12]s$/)).toBeInTheDocument();
   });
 
+  it("titles the page with the friendly name and shows the id in small print", async () => {
+    mockApi({ "GET /api/jobs/legal-1": detail(job({ name: "Legal 4" })), ...lists });
+    render(<JobPage />);
+    expect(await screen.findByRole("heading", { level: 1, name: "Legal 4" })).toBeInTheDocument();
+    expect(screen.getByText(/id legal-1/)).toBeInTheDocument();
+  });
+
   it("offers Resume for a stopped job and posts it", async () => {
     const { calls } = mockApi({
       "GET /api/jobs/legal-1": detail(job({ status: "stopped" })),

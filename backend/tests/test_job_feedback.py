@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from dataset_factory.api import create_app
 from dataset_factory.api.manager import JobManager
+from dataset_factory.api.names import JobNames
 from dataset_factory.tokens import TokenizerUnavailable, load_token_counter
 from dataset_factory.config import load_config
 from dataset_factory.orchestrator import Job, JobSpec
@@ -118,3 +119,45 @@ def test_running_job_cannot_be_deleted_and_survives_clear_all(client):
     while time.time() < end and client.get(f"/api/jobs/{job_id}").json()["state"]["status"] != "stopped":
         time.sleep(0.2)
     assert client.delete(f"/api/jobs/{job_id}").status_code == 204
+
+
+# -- friendly names -----------------------------------------------------------
+
+
+def test_names_count_per_domain_and_mode_and_are_never_reused(tmp_path):
+    names = JobNames(tmp_path)
+    assert names.assign("a", "legal", "curate") == "Legal 1"
+    assert names.assign("b", "legal", "curate") == "Legal 2"
+    assert names.assign("c", "legal", "random") == "Legal random 1"
+    assert names.assign("d", "code", "curate") == "Code 1"
+    assert names.assign("a", "legal", "curate") == "Legal 1"          # asking again keeps the name
+    names.forget("b")
+    assert names.assign("e", "legal", "curate") == "Legal 3"          # "Legal 2" is not handed out again
+    assert JobNames(tmp_path).get("e") == "Legal 3"                    # survives a restart
+
+
+def test_older_jobs_are_named_oldest_first_and_new_ones_continue(tmp_path):
+    names = JobNames(tmp_path)
+    rows = [{"job_id": "new", "domain": "legal", "mode": "curate", "started_at": "2026-03-01"},
+            {"job_id": "old", "domain": "legal", "mode": "curate", "started_at": "2026-01-01"},
+            {"job_id": "mid", "domain": "legal", "mode": "curate", "started_at": "2026-02-01"}]
+    names.sync(rows)
+    assert {r["job_id"]: r["name"] for r in rows} == {"old": "Legal 1", "mid": "Legal 2", "new": "Legal 3"}
+    assert names.assign("fresh", "legal", "curate") == "Legal 4"
+
+
+def test_unreadable_names_file_does_not_break_anything(tmp_path):
+    (tmp_path / "job-names.json").write_text("{not json")
+    assert JobNames(tmp_path).assign("x", "news", "curate") == "News 1"
+
+
+@pytest.mark.skipif(not _HAVE_TOKENIZER, reason="Pythia tokenizer not cached")
+def test_api_returns_names_and_delete_forgets_them(client, tmp_path):
+    first, second = _run_job(client), _run_job(client)
+    names = {j["job_id"]: j["name"] for j in client.get("/api/jobs").json()}
+    assert sorted(names.values()) == ["General 1", "General 2"]
+    assert client.get(f"/api/jobs/{first}").json()["state"]["name"] == names[first]
+    client.delete(f"/api/jobs/{first}")
+    third = _run_job(client)
+    assert client.get(f"/api/jobs/{third}").json()["state"]["name"] == "General 3"
+    assert client.get(f"/api/jobs/{second}").json()["state"]["name"] == names[second]    # unchanged

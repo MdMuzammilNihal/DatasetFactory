@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { API, api, ACTIVE, dur, n, pct, type JobState } from "../../lib";
+import { API, api, ACTIVE, dur, label, n, pct, type JobState } from "../../lib";
 import { Badge, Browser, CountTable, Histogram, NestedTable, Stat } from "../../components";
 
 function Detail() {
@@ -85,8 +85,9 @@ function Detail() {
       <div className="pagehead">
         <div>
           <a className="crumb" href="/">← Jobs</a>
-          <div className="row"><h1>{state.job_id}</h1><Badge status={state.status} /></div>
-          <p>{state.domain} · {state.mode}{state.started_at ? ` · started ${new Date(state.started_at).toLocaleString()}` : ""}</p>
+          <div className="row"><h1 title={state.job_id}>{label(state)}</h1><Badge status={state.status} /></div>
+          <p>{state.domain} · {state.mode}{state.started_at ? ` · started ${new Date(state.started_at).toLocaleString()}` : ""}
+            {state.name && <span className="jid"> · id {state.job_id}</span>}</p>
         </div>
         <div className="row">
           {active && <button onClick={() => act("stop")} disabled={stopping}>{stopping ? "Stopping…" : "Stop"}</button>}

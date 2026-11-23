@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Home from "../app/page";
@@ -65,6 +65,19 @@ describe("Home page", () => {
     expect(screen.getByRole("link", { name: "run-1" })).toBeInTheDocument();
     expect(calls.find((c) => c.method === "DELETE")!.path).toBe("/api/jobs");
     expect(confirm.mock.calls[1][0]).toMatch(/all 2 finished jobs/);
+  });
+
+  it("shows the friendly name and keeps the id only as a tooltip and link target", async () => {
+    mockApi({ ...base, "GET /api/jobs": [job({ name: "Legal 2" }), job({ job_id: "old-job" })] });
+    render(<Home />);
+    await screen.findAllByRole("link", { name: "Legal 2" });
+    const table = within(screen.getByRole("table"));
+    const link = table.getByRole("link", { name: "Legal 2" });
+    expect(link).toHaveAttribute("href", "/jobs/view?id=legal-1");
+    expect(link).toHaveAttribute("title", "legal-1");
+    expect(screen.queryByText("legal-1")).not.toBeInTheDocument();                 // the id is not shown as text
+    expect(table.getByRole("link", { name: "old-job" })).toBeInTheDocument();      // no name yet: falls back to the id
+    expect(screen.getByRole("button", { name: "Delete Legal 2" })).toBeInTheDocument();
   });
 
   it("says so when there are no jobs", async () => {
