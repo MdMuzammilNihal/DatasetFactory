@@ -3,27 +3,19 @@
 ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-245%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
 
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
-curation helps and when it does not**.
+curation helps and when it does not**. It is a rebuild, from a college project paper, of a multi-agent curation system
+for six domains (general, news, medical, legal, scientific, code); the paper guided the design, not the numbers.
 
-It is a rebuild, from the project paper, of a college major project (multi-agent data curation for six domains:
-general, news, medical, legal, scientific, code). The original repository is not available. The paper is used as a
-guide for the design (agents, stages, dashboard, experiments), not as ground truth for numbers; where our own
-measurements disagree with it, this README says so.
-
-Framing of the results: this is **not** a claim that "our curation makes better data". Measured on Pythia-160M with
-20M-token corpora, curation clearly helps for general web text, helps a little for legal (~1.3%) and code (~0.5%)
-text inside a mixed corpus, and the medical filters add nothing measurable. See [Results](#results).
+Measured on Pythia-160M with 20M-token corpora: curation clearly helps for general web text, helps a little for legal
+(~1.3%) and code (~0.5%) text inside a mixed corpus, and the medical filters add nothing measurable.
+See [Results](#results).
 
 ## Screenshots
-
-Dashboard with live jobs (real data streamed from Hugging Face), and a job running (stat tiles, rejection reasons,
-quality-score histogram, per-source and per-agent counts, licences, PII removed; updates live over SSE):
 
 ![dashboard](docs/img/dashboard.png)
 ![job running](docs/img/job-running.png)
 
 A finished legal job with the record browser: [docs/img/job-completed-legal.png](docs/img/job-completed-legal.png).
-Screenshots are regenerated with `node docs/tools/screenshot.mjs URL OUT.png [width] [height] [waitMs]`.
 
 ## Architecture
 
@@ -33,46 +25,35 @@ frontend/   Next.js dashboard (live jobs, records, rejections)
 training/   corpus building, pretraining, evaluation, QLoRA, experiment runner (package dftrain, standalone)
 ```
 
-**Per-document pipeline** (inside worker processes; everything tunable lives in `backend/config/default.toml`, the
-loader rejects unknown keys, every record carries the config fingerprint):
+**Per-document pipeline** (worker processes; all settings in `backend/config/default.toml`, unknown keys are rejected,
+every record carries the config fingerprint):
 
     licence policy -> global filter (incl. language ID) -> domain validator -> quality score
       -> learned classifier -> PII scrub -> hash + MinHash signature -> record
 
-Then in the main process: deduplication (exact hash, then MinHash at 0.85) and writing.
+Then, in the main process: deduplication (exact hash, then MinHash at 0.85) and writing.
 
-**Agents** (`agents.py`): `FactoryAgent` streams real Hugging Face corpora, `GeneratorAgent` streams general web text
-(FineWeb) as a source of extra candidates, `ScorerAgent` evaluates a document. Candidates are interleaved by
-`factory_share`. Sources (13 real ones, plus a clearly labelled synthetic offline fallback) are in
-`backend/dataset_factory/sources.py` / `[sources.*]`.
-
-**Orchestrator** (`orchestrator.py`): a `ProcessPoolExecutor`, results merged in chunk order (output identical for any
-worker count), checkpoints, exact resume, exact token budget with the Pythia tokenizer. A job folder
-`backend/runs/<job_id>/` holds `config.toml`, `data.jsonl`, `rejections.jsonl`, `dedup.bin`, `checkpoint.json`,
-`manifest.json` (spec, state, sha256 of the data, config fingerprint).
-
-**Learned classifier:** a fastText-style linear model (hashed word and word-pair features, NumPy inference), a
-pass/fail stage after scoring. Every validator check, score feature and pipeline stage can be switched off by name
-(`config/ablations/*.toml`, made by `backend/scripts/make_ablation_configs.py`) for ablations.
-
-**API** (`dataset_factory/api`): FastAPI, `GET/POST /api/jobs`, stop/resume, manifest, records, rejections, download,
-SSE progress (docs at `/docs`). **Dashboard**: new-job form, job list, live job detail (yield, rejections by label,
-by source/agent, licences, score histogram), browse records and rejections.
-
-**`dftrain`**: `evalsets` / `domainsets` (held-out evaluation sets), `corpus` (token-exact mixed corpora with
-decontamination), `pretrain` (continued pretraining of Pythia), `evaluate` (perplexity, PubMedQA), `qlora`,
-`experiment` (plan runner with seeds, summaries and paired bootstrap), Colab notebook (untested).
+- **Agents:** `FactoryAgent` streams 13 real Hugging Face sources, `GeneratorAgent` adds general web text (FineWeb),
+  `ScorerAgent` evaluates documents. A labelled synthetic source is the offline fallback.
+- **Orchestrator:** process pool, results merged in chunk order (same output for any worker count), checkpoints,
+  exact resume, exact token budget with the Pythia tokenizer. Job folder `backend/runs/<job_id>/`: `config.toml`,
+  `data.jsonl`, `rejections.jsonl`, `dedup.bin`, `checkpoint.json`, `manifest.json`.
+- **Learned classifier:** fastText-style linear model, a pass/fail stage after scoring. Every validator check, score
+  feature and stage can be switched off by name for ablations (`backend/scripts/make_ablation_configs.py`).
+- **API and dashboard:** FastAPI (jobs, stop/resume, records, rejections, download, SSE progress; docs at `/docs`) and
+  a Next.js dashboard with live job detail.
+- **`dftrain`:** held-out eval sets, token-exact mixed corpora with decontamination, continued pretraining of Pythia,
+  perplexity and PubMedQA evaluation, QLoRA, an experiment runner (seeds, summaries, paired bootstrap), Colab notebook
+  (untested).
 
 ## Setup
 
-Tested on Windows 11, Python 3.13, Node 22, RTX 4060 Laptop (8 GB), 24 GB RAM. Keep the project in a short path
-(Windows long paths are off).
+Tested on Windows 11, Python 3.13, Node 22, RTX 4060 Laptop (8 GB), 24 GB RAM. Keep the project in a short path.
 
 ```powershell
 cd backend
 python -m venv .venv
 .venv/Scripts/python -m pip install -e ".[api,dev,train]"
-# training stack (CUDA 12.6 build of torch):
 .venv/Scripts/python -m pip install torch --index-url https://download.pytorch.org/whl/cu126
 .venv/Scripts/python -m pip install -e "../training[train,dev]" peft bitsandbytes psutil
 
@@ -80,92 +61,73 @@ cd ../frontend
 npm install
 ```
 
-The Pythia tokenizer (`EleutherAI/pythia-160m`, `tokenizer.json`) is downloaded to the Hugging Face cache on first
-use and read from the cache afterwards. Use `datasets` streaming for Hugging Face data (the dataset viewer API
-rate-limits bulk pulls).
+The Pythia tokenizer is downloaded to the Hugging Face cache on first use. Use `datasets` streaming for Hugging Face
+data (the dataset viewer API rate-limits bulk pulls).
 
 ## How to run
 
-### Curate (CLI, from `backend`)
+**Curate (CLI, from `backend`):**
 
 ```powershell
-.venv/Scripts/python -m dataset_factory curate legal --tokens 2M      # also --docs, --candidates, --mode random, --synthetic, --input f.jsonl, --sources a,b, --workers, --seed, --out
+.venv/Scripts/python -m dataset_factory curate legal --tokens 2M   # also --docs, --candidates, --mode random, --synthetic, --input f.jsonl, --sources a,b, --workers, --seed, --out
 .venv/Scripts/python -m dataset_factory status runs/<job_id>
 .venv/Scripts/python -m dataset_factory resume runs/<job_id>
-.venv/Scripts/python -m dataset_factory benchmark --fetch 20000
 ```
 
-`--mode random` uses the same sources and order with no filters, no dedup, no PII scrub (the same-source baseline).
-For a long general job with a RAM guard that stops at a checkpoint and resumes when run again:
-`.venv/Scripts/python scripts/scale_general.py --tokens 300M --workers 3 --min-free-gb 4`.
+`--mode random` uses the same sources with no filters, dedup or PII scrub (the same-source baseline). For a long
+general job with a RAM guard: `scripts/scale_general.py --tokens 300M --workers 3 --min-free-gb 4`.
 
-### API and dashboard
+**API and dashboard:**
 
 ```powershell
 cd backend;  .venv/Scripts/python -m dataset_factory serve --port 8000
 cd frontend; npm run dev          # http://localhost:3000, API URL via NEXT_PUBLIC_API_URL
 ```
 
-**Curate your own data.** On the new-job form tick "your data (upload)", pick a `.jsonl`, `.csv`, `.parquet`
-or `.txt` file (max 200 MB), name the text field/column (for `.txt`: one document per blank-line block, or
-the whole file), set its licence, choose the domain whose validator should apply, and start. The same
-filters, dedup, PII scrub and report apply as for Hugging Face sources. Over HTTP: `POST /api/uploads`
-(multipart `file`, `text_field`, `txt_split`) returns an `upload_id`; `POST /api/jobs` with `upload_id` and
-`input_license`. The API takes only the id, never a file path. In the CLI: `curate DOMAIN --input f.jsonl`.
+**Your own data:** on the new-job form tick "your data (upload)", pick a `.jsonl`, `.csv`, `.parquet` or `.txt` file
+(max 200 MB), name the text field, set its licence and domain. The same filters, dedup and PII scrub apply. Over HTTP:
+`POST /api/uploads` returns an `upload_id`, then `POST /api/jobs` with `upload_id` and `input_license`. CLI:
+`curate DOMAIN --input f.jsonl`.
 
-### Train and evaluate (from `training`)
+**Train and evaluate (from `training`):**
 
 ```powershell
-../backend/.venv/Scripts/python -m dftrain evalsets                      # held-out test sets (~1.5 min)
-../backend/.venv/Scripts/python -m dftrain domainsets                    # code and legal sets
+../backend/.venv/Scripts/python -m dftrain evalsets        # held-out test sets (~1.5 min); `domainsets` for code/legal
 ../backend/.venv/Scripts/python -m dftrain corpus NAME --budget 19.8M --part ../backend/runs/<job_id>=0.6 --part ...
 ../backend/.venv/Scripts/python -m dftrain pretrain --corpus data/corpora/NAME --out data/runs/RUN
 ../backend/.venv/Scripts/python -m dftrain evaluate data/runs/RUN/model --out data/results/RUN.json
 ../backend/.venv/Scripts/python -m dftrain compare A.json B.json
 ../backend/.venv/Scripts/python -m dftrain qlora EleutherAI/pythia-410m --out data/runs/RUN
 ../backend/.venv/Scripts/python -m dftrain experiment plans/legal-160m.toml [--dry-run] [--summary-only]
-bash scripts/queue-night1.sh                                             # the overnight queue of plans used for the results below
 ```
 
-Re-running `experiment` skips finished steps and resumes a stopped pretraining. Before long GPU runs close other
-GPU apps and check `tok_per_s` in the run's `log.jsonl` (~18-19k on the 4060 for 160M); VRAM spilling into shared
-memory makes training ~5x slower.
+Re-running `experiment` skips finished steps. Before long GPU runs close other GPU apps and check `tok_per_s` in
+`log.jsonl` (~18-19k on the 4060 for 160M); VRAM spilling into shared memory makes training ~5x slower.
 
-### Tests
-
-```powershell
-cd backend;  .venv/Scripts/python -m pytest -q
-cd training; ../backend/.venv/Scripts/python -m pytest -q
-```
+**Tests:** `cd backend; .venv/Scripts/python -m pytest -q` and `cd training; ../backend/.venv/Scripts/python -m pytest -q`.
 
 ## Verified end to end (2026-11-22)
 
-A fresh run through every layer on real data: dashboard job -> corpus -> pretraining -> evaluation (small, to show
-the chain works, not to produce a result).
+Real data through every layer: dashboard job -> corpus -> pretraining -> evaluation (small, to show the chain works).
 
-| step | command / action | result | time |
-|---|---|---|---|
-| API + dashboard | `serve --port 8000`, `npm run dev` | both up in seconds | ~12 s |
-| curate | legal, 2M tokens, real data (CAP caselaw), started from the dashboard form | 813 read, 533 accepted (65.6%), 2,000,068 tokens, 9.6 MB; top rejections `legal:citations` 108, `score:below_threshold` 84 | ~1 min |
-| corpus | `dftrain corpus e2e-legal --budget 1.5M --part <job>` | 431 docs, 1,500,000 train tokens (6 docs decontaminated) | 3 s |
-| pretrain | `dftrain pretrain ... --max-steps 20` (Pythia-160M) | 655,360 tokens, final val loss 2.528, 6.1 GB, ~18.6k tok/s | 42 s |
-| evaluate | `dftrain evaluate ... --tasks wikitext,legal --shots 0` | WikiText ppl 41.03, legal ppl 17.84 | 55 s |
+| step | result | time |
+|---|---|---|
+| curate legal, 2M tokens, from the dashboard | 813 read, 533 accepted (65.6%), 2,000,068 tokens | ~1 min |
+| `corpus --budget 1.5M` | 431 docs, 6 decontaminated | 3 s |
+| `pretrain --max-steps 20` (160M) | val loss 2.528, ~18.6k tok/s | 42 s |
+| `evaluate --tasks wikitext,legal` | WikiText ppl 41.03, legal 17.84 | 55 s |
 
-Twenty steps from a re-warmed released model make both perplexities worse than the base model (WikiText 26.01, legal
-16.42): too short to recover, as already seen with 2M-token runs. This run checks that the chain works; it is not
-evidence about data quality.
+Twenty steps make both perplexities worse than the base model (26.01 / 16.42): too short to recover. This checks the
+chain, not data quality.
 
 ## Results
 
-All results: continued pretraining of Pythia-160M on ~19.8M-token corpora (604 steps), perplexity on held-out test sets
-that are decontaminated against the training data. "Ratio vs random" is perplexity relative to a corpus built from
-the **same sources with no filters** (paired bootstrap; lower is better, below 1 = curation helps). Mean of 3 seeds
-(`curated`, `no-validator`, `no-score`, `r1-mix`: 1 seed); dev sets agree in rank everywhere; seed std of ppl is
-0.00-0.35.
+Continued pretraining of Pythia-160M on ~19.8M-token corpora (604 steps); perplexity on decontaminated held-out test
+sets. "Ratio vs random" is perplexity relative to a corpus from the **same sources with no filters** (paired
+bootstrap; below 1 = curation helps). Mean of 3 seeds (`curated`, `no-validator`, `no-score`, `r1-mix`: 1 seed); dev
+sets agree in rank; seed std of ppl is 0.00-0.35.
 
 ![results](docs/img/results.svg)
-
-Chart: `training/scripts/make_results_chart.py` draws it from the experiment summaries.
 
 | arm | medical: WikiText / medical / clinical | legal: WikiText / legal | code: WikiText / code |
 |---|---|---|---|
@@ -175,41 +137,28 @@ Chart: `training/scripts/make_results_chart.py` draws it from the experiment sum
 | control-random-mix | **0.904 / 0.999** / 1.000 | 0.914 / 1.037 | 0.955 / 1.003 |
 | wiki-mix (raw Wikipedia 40%) | 0.922 / 1.000 / 1.001 | 0.943 / 1.035 | 0.971 / 1.003 |
 
-Arms: *curated* = full pipeline output only; *curated-mix* = 60% curated domain + 40% curated general text;
-*loose-mix* = validator and score threshold off; *control-random-mix* = the random job's domain documents (web text
-removed) 60% + the same curated general 40%; *wiki-mix* = unfiltered domain part 60% + raw Wikipedia 40%.
+*curated* = pipeline output only; *curated-mix* = 60% curated domain + 40% curated general; *loose-mix* = validator and
+score threshold off; *control-random-mix* = the random job's domain documents (web text removed) 60% + the same curated
+general 40%; *wiki-mix* = unfiltered domain part 60% + raw Wikipedia 40%.
 
-Absolute test perplexity (mean +- std): medical random 14.22 +- 0.00, control-mix 14.21 +- 0.01, r2 14.22 +- 0.01;
-legal random 15.08, curated-mix 15.44 +- 0.11, control 15.63 +- 0.07, wiki-mix 15.60 +- 0.10; code random 6.30,
-curated-mix 6.29 +- 0.01, control 6.32 +- 0.00, wiki-mix 6.32 +- 0.01. Base Pythia-160M: WikiText 26.01, medical
-15.46, legal 16.42, code 7.11.
+Absolute test perplexity: medical random 14.22, control 14.21, r2 14.22; legal random 15.08, curated-mix 15.44 +- 0.11,
+control 15.63 +- 0.07; code random 6.30, curated-mix 6.29, control 6.32. Base Pythia-160M: WikiText 26.01, medical 15.46,
+legal 16.42, code 7.11.
 
-What the tables say:
-- **General web text: curation clearly helps.** Curated general text (Wikipedia + filtered FineWeb) in a 40% share
-  gives a better WikiText ratio than the random arm's raw FineWeb (medical mixes 0.904-0.915, legal 0.910-0.914,
-  code 0.955-0.962, all below 1) and than raw Wikipedia in the same share (wiki-mix 0.922 / 0.943 / 0.971), by
-  ~1.5-3%; domain perplexity is the same either way. The gain is not only "it is Wikipedia", though Wikipedia text
-  is partly in-domain for WikiText.
-- **Legal:** the gain inside a 60/40 mix holds with 3 seeds: curated-mix 1.024 vs control 1.037 (about 1.3%, larger
-  than the seed std ~0.7%). Curated legal alone only ties random (1.003, 1 seed).
-- **Code:** curated-mix 0.998 vs control 1.003 (~0.5%), small, but in all 3 seeds on test. Curated alone beats random
-  (0.987) partly because the random job has 24% web tokens. Per-language test ppl (go / java / javascript / python):
-  base 7.86 / 6.73 / 6.36 / 7.81; random 7.10 / 5.84 / 5.67 / 6.94; curated (1 seed) 6.88 / 5.78 / 5.58 / 6.96.
-  Curation helps Go most (-3% vs random) and Python not at all (`code:syntax_blocks` removes the most Python).
-- **Medical: the filters add nothing.** With 3 seeds, loose-mix = control = random on medical and clinical text.
-  Strict curation narrows the data (66% PubMedQA abstracts, 34% PubMed): it is 2.0% worse on general PubMed
-  (ratio 1.019, all 3 seeds), 1.51x worse on WikiText, but 2.5% better on clinical-style text (0.975). Removing the
-  validator or score threshold made both perplexities slightly better, not worse.
-- Continued pretraining on any 20M corpus here makes WikiText worse than the base model unless a mix includes
-  general text; only domain data improves domain perplexity.
+- **General web text: curation clearly helps.** Curated general text in a 40% share beats raw FineWeb and raw Wikipedia
+  on WikiText by ~1.5-3%, with the same domain perplexity. Part of this is that Wikipedia is in-domain for WikiText.
+- **Legal:** curated-mix 1.024 vs control 1.037 (~1.3%, above the seed std of ~0.7%). Curated legal alone only ties random.
+- **Code:** curated-mix 0.998 vs control 1.003 (~0.5%), small but in all 3 seeds. Curation helps Go most (-3% vs
+  random) and Python not at all (`code:syntax_blocks` removes the most Python).
+- **Medical: the filters add nothing.** loose-mix = control = random. Strict curation narrows the data (66% PubMedQA
+  abstracts): 2.0% worse on general PubMed, 1.51x worse on WikiText, 2.5% better on clinical-style text.
+- Continued pretraining on any 20M corpus here makes WikiText worse than base unless a mix includes general text.
 
 ### PubMedQA and QLoRA
 
 At 160M, PubMedQA 0-shot accuracy is **the yes/no word bias, not medical reasoning**: the paper's 55% equals always
-answering "yes" (majority baseline 55.2%). Yes-vs-no AUROC is 0.48-0.52 for every 160M model including the untouched
-base, no paired difference excludes 0, and medical text has "no" 28x as often as "yes", which flips some models to
-mostly "no". Do not use PubMedQA at 160M to compare corpora. QLoRA (paper Table 4 settings, 500 train items,
-3 epochs, 0-shot test of 500 items) on the released models:
+answering "yes" (majority 55.2%), and yes-vs-no AUROC is 0.48-0.52 for every 160M model, base included. QLoRA (500
+train items, 3 epochs, 0-shot test of 500) on the released models:
 
 | model | acc % (95% CI) | macro-F1 | pred yes/no/maybe |
 |---|---|---|---|
@@ -220,13 +169,10 @@ mostly "no". Do not use PubMedQA at 160M to compare corpora. QLoRA (paper Table 
 | 1B 4-bit, no tuning | 55.4 (50.8-60.0) | 0.35 | 385/115/0 |
 | 1B QLoRA s0 | 67.8 (63.6-72.0) | 0.47 | 309/186/5 |
 
-160M learns only the label prior; 410M learns real signal (+10 to +14 points over the majority baseline). A QLoRA
-comparison between *corpora* would only be meaningful from 410M up, which needs Colab for pretraining (not run).
+160M learns only the label prior; 410M learns real signal (+10 to +14 points over majority).
 
 ### Scaling
 
-`backend/runs/general-20261122-002235-9a07`: general, curated, **300,000,133 tokens**, 306,130 documents from 687,590
-candidates (44.5% kept), 31 min of curation time, 1.7 GB folder; checked: line count = accepted, token sum matches,
-sha256 = manifest, 0 duplicate ids, 0 exact duplicate texts across 3 resumes. The RAM guard stopped it three times
-(free RAM fell to 1.4-3.5 GB while curating next to training) and it was resumed each time. Not used for training.
-A 50M-token general run: 94,689 candidates read, 40,873 accepted (43%), 314 s.
+A general curated job reached **300,000,133 tokens** (306,130 documents from 687,590 candidates, 44.5% kept, 31 min,
+1.7 GB). Checked: line count = accepted, token sum matches, sha256 = manifest, no duplicate ids or texts across 3
+resumes. A RAM guard stopped it three times and it was resumed each time. A 50M-token run took 314 s.
