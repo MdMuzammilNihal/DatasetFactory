@@ -50,7 +50,7 @@ def test_every_domain_has_valid_scoring(config):
 
 
 def test_specialised_domains_have_stricter_thresholds(config):
-    """As in the paper: legal and scientific are stricter than general and news."""
+    """Legal and scientific are stricter than general and news."""
     threshold = {d: build_scorer(d, config).threshold for d in DOMAINS}
     assert min(threshold["legal"], threshold["scientific"]) >= max(
         threshold["general"], threshold["news"]

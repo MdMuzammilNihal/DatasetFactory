@@ -7,7 +7,7 @@
     resume runs/<job_id>                          continue a stopped or interrupted job
     status runs/<job_id>                          summary of a job folder
     benchmark --fetch 20000                       cache 20,000 FineWeb documents locally
-    benchmark --workers 1 2 4 --domains general   throughput scaling (the paper's Table 10)
+    benchmark --workers 1 2 4 --domains general   throughput scaling
 
 Ctrl+C stops a job at the next chunk with a checkpoint; ``resume`` continues it.
 """

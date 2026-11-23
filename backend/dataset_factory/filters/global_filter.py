@@ -1,11 +1,11 @@
-"""Stage 1: the global filter, G(x) in the paper.
+"""Stage 1: the global filter, G(x).
 
 Applied to every document regardless of domain. It removes documents that are
 too short or long, badly encoded, full of markup, not in the target language,
 not prose, low in information, repetitive, or mostly boilerplate.
 
 Checks run cheapest-first and stop at the first failure, so obviously bad
-documents cost almost nothing (the paper's "early rejection"). Any check can be
+documents cost almost nothing (early rejection). Any check can be
 switched off through ``disabled_checks`` in the configuration.
 """
 

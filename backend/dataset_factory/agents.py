@@ -1,4 +1,4 @@
-"""The three agents of the paper.
+"""The three agents: Factory, Generator and Scorer.
 
 * ``FactoryAgent`` reads a domain's structured, trusted repositories.
 * ``GeneratorAgent`` reads its large web corpora and drops the obviously

@@ -24,7 +24,7 @@ name = "base"
 
 [[arms]]
 name = "fineweb"
-description = "FineWeb, unfiltered (--mode random --sources fineweb): the paper's web baseline"
+description = "FineWeb, unfiltered (--mode random --sources fineweb): the raw web baseline"
 parts = ["../backend/runs/general-random-20261118-213053-d830"]
 
 [[arms]]

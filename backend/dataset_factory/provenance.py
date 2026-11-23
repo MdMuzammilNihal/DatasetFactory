@@ -3,7 +3,7 @@
 Each record says where the document came from, which domain it was curated
 for, its quality score, what every pipeline stage decided, and when it was
 accepted. Together with the configuration fingerprint this makes a dataset
-traceable and reproducible, as the paper requires.
+traceable and reproducible.
 
 A record looks like this (one JSON object per line of the output file):
 

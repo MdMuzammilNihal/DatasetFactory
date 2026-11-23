@@ -1,6 +1,6 @@
 """Stage 3: composite quality scoring.
 
-For a document x that passed both filters, the paper defines
+For a document x that passed both filters, the score is defined as
 
     Q(x) = sum_i  w_i * f_i(x)        and accepts x when   Q(x) >= tau_d
 

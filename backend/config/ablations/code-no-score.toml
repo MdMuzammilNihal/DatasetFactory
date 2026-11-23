@@ -59,7 +59,7 @@ disabled_checks = ["language", "stopwords", "markup"]
 # Stage 2: domain validators. A document must pass every check of its domain.
 # Thresholds were calibrated on real samples with scripts/calibrate.py.
 # Each section accepts `disabled_checks = [...]` to switch checks off by name
-# (this is how the paper's leave-one-out ablation is reproduced).
+# (this is how leave-one-out ablations are run).
 # ---------------------------------------------------------------------------
 
 # Checks: well_formed, factual_density, neutral_voice, not_promotional
@@ -235,7 +235,7 @@ facts_per_100w = 4
 # Stage 4: learned quality classifier (one small linear model per domain).
 # A document that passed the rules must also be judged, by the trained model,
 # to resemble trusted text of its domain: probability >= min_probability.
-# Set enabled = false to curate with the rules alone, as in the paper.
+# Set enabled = false to curate with the rules alone.
 # Train or retrain with:  python scripts/train_classifier.py
 # ---------------------------------------------------------------------------
 [classifier]
@@ -288,7 +288,7 @@ allow_unknown = true
 blocked = []
 
 # ---------------------------------------------------------------------------
-# Runtime: how a curation job runs (the paper's Table 2: 1-4 worker processes,
+# Runtime: how a curation job runs (1-4 worker processes,
 # chunks of 1,000 documents, a checkpoint every 10,000 documents).
 #   workers           worker processes; 0 runs everything in the main process
 #   chunk_size        candidate documents sent to a worker at a time
@@ -320,7 +320,7 @@ output_dir = "runs"
 #   shuffle_buffer documents are drawn at random from a window of this size
 #                  (seeded, so the order is reproducible); 0 keeps corpus order
 # ---------------------------------------------------------------------------
-[sources.fineweb]            # filtered CommonCrawl web text; the paper's baseline corpus
+[sources.fineweb]            # filtered CommonCrawl web text; the baseline web corpus
 path = "HuggingFaceFW/fineweb"
 data_files = ["sample/10BT/*.parquet"]   # the 10-billion-token sample. Naming the files
                                          # opens in 8 s; name = "sample-10BT" takes 96 s

@@ -1,7 +1,7 @@
 """Exact token counts with the Pythia (GPT-NeoX) tokenizer.
 
-Token budgets are the unit the paper compares datasets by (200M tokens per
-run), so accepted documents are counted with the tokenizer of the models that
+Token budgets are the unit datasets are compared by (for example 200M tokens
+per run), so accepted documents are counted with the tokenizer of the models that
 will be trained on them. Only ``tokenizer.json`` is fetched from the Hugging
 Face Hub, once; afterwards it is read from the local cache, also offline.
 

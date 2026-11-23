@@ -7,7 +7,7 @@ Sources are declared under ``[sources.<key>]`` in the configuration.
 A *route* says, for one domain, which sources the Factory agent reads
 (structured, trusted repositories) and which the Generator agent reads (large
 web corpora), and in what proportion. Routes live under ``[domains.<key>]``.
-This is the paper's source-routing step.
+This is the source-routing step.
 """
 
 from __future__ import annotations

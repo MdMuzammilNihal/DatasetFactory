@@ -1,6 +1,6 @@
 """General-knowledge validator.
 
-The most permissive of the six, as in the paper: it accepts well-formed,
+The most permissive of the six: it accepts well-formed,
 factual, neutral prose of any topic (encyclopedia-style writing).
 """
 

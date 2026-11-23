@@ -1,8 +1,8 @@
 """Throughput benchmark: documents per second for 1, 2, 4... worker processes.
 
-This reproduces the paper's throughput-scaling test (Table 10). To measure the
+This is the throughput-scaling test. To measure the
 pipeline and not the network, it reads a local JSON-lines file of real
-documents (``fetch_benchmark_corpus`` streams one from FineWeb, the paper's
+documents (``fetch_benchmark_corpus`` streams one from FineWeb, a large
 web corpus) and runs the real orchestrator on it with every stage switched on:
 filters, validator, score, classifier, PII scrubbing, MinHash, token counting,
 deduplication and writing.

@@ -33,9 +33,9 @@ class TrainConfig:
     revision: str = "main"               # released final checkpoint (step 143000)
     seed: int = 0
     seq_len: int = 1024
-    global_batch: int = 32               # sequences per optimizer step (paper: 256)
+    global_batch: int = 32               # sequences per optimizer step
     micro_batch: int = 4                 # 8 needs 9.6 GB for Pythia-160M (spills on an 8 GB GPU)
-    lr: float = 6e-5                     # paper: 2e-4; measured worse here
+    lr: float = 6e-5                     # 2e-4 was measured worse here
     weight_decay: float = 0.1
     betas: tuple[float, float] = (0.9, 0.95)
     warmup_frac: float = 0.05

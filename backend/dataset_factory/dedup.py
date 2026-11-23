@@ -1,6 +1,6 @@
 """Stage 5: deduplication.
 
-The paper measures the similarity of two documents as the Jaccard similarity
+The similarity of two documents is measured as the Jaccard similarity
 of their shingle sets,
 
     Sim(x_i, x_j) = |Sh(x_i) & Sh(x_j)| / |Sh(x_i) | Sh(x_j)|

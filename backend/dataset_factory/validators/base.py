@@ -1,4 +1,4 @@
-"""Stage 2 framework: domain-specific validators, V_d(x) in the paper.
+"""Stage 2 framework: domain-specific validators, V_d(x).
 
 A validator measures a document once (``analyze``), turning it into a small
 dictionary of numeric *signals*, then applies a list of named checks to those
@@ -6,7 +6,7 @@ signals. A document passes when every enabled check passes.
 
 Keeping measurement and decision separate has two benefits: the scorer in the
 next stage reuses the same signals without re-reading the text, and any check
-can be switched off by name to reproduce the paper's leave-one-out ablation.
+can be switched off by name to run leave-one-out ablations.
 
 Speed matters here because this runs on every document that survives stage 1.
 Single-word cues are therefore tested with dictionary lookups against the

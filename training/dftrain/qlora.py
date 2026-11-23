@@ -1,8 +1,7 @@
 """QLoRA fine-tuning on PubMedQA (Module 10d).
 
-Paper Table 4: LoRA r 16, alpha 32, dropout 0.05 on ``query_key_value``,
-lr 2e-4, 3 epochs, batch 4 x accumulation 4. Our choices where the paper is
-silent:
+Settings: LoRA r 16, alpha 32, dropout 0.05 on ``query_key_value``,
+lr 2e-4, 3 epochs, batch 4 x accumulation 4. Other choices:
 - 4-bit NF4 base (double quantization, fp16 compute) via bitsandbytes;
   ``quant="none"`` is plain LoRA on an fp32 base with fp16 autocast.
 - The training text is exactly the evaluation prompt (``evaluate.pubmedqa_prompt``)

@@ -1,7 +1,7 @@
 """Build the evaluation sets once, so every model is scored on identical text.
 
 - ``wikitext.jsonl``: WikiText-103 test split, one article per line
-  (general-language perplexity, as in the paper's Table 6).
+  (general-language perplexity).
 - ``medical.jsonl``: PubMed abstracts from two MedRAG files that no curation
   source reads (one from the 1980s, one from the 2020s). Only a length rule is
   applied: filtering them with our own validators would favour the curated

@@ -1,6 +1,6 @@
 """Medical validator.
 
-Its checks carry the names used in the paper's ablation study (Table 9):
+Its checks are named so that each can be ablated on its own:
 clinical structure, factual grounding, educational value, topic coherence and
 verifiable claims, plus a misinformation screen.
 """
