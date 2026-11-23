@@ -4,12 +4,17 @@ import "@fontsource/ibm-plex-serif/600.css";
 import "@fontsource/ibm-plex-serif/700.css";
 import "./globals.css";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "./theme-toggle";
+
+// Applies a saved theme before first paint so the page does not flash the wrong palette.
+const initTheme = `try{var t=localStorage.getItem("df-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export const metadata = { title: "Dataset Factory", description: "Multi-domain data curation dashboard" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: initTheme }} /></head>
       <body>
         <div className="shell">
           <aside className="side">
@@ -22,6 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <a href="/#jobs">☰&nbsp; Jobs</a>
               </nav>
             </div>
+            <div className="themewrap"><ThemeToggle /></div>
             <div className="foot"><b>Curation dashboard</b>Filter, score and export datasets.</div>
           </aside>
           <main className="page">{children}</main>
