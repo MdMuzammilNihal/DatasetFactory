@@ -22,6 +22,7 @@ A finished legal job with the record browser: [docs/img/job-completed-legal.png]
 ```
 backend/    curation pipeline, CLI, FastAPI server       (Python package dataset_factory)
 frontend/   Next.js dashboard (live jobs, records, rejections)
+docker-compose.yml   API + dashboard as containers  (backend/Dockerfile, frontend/Dockerfile)
 training/   corpus building, pretraining, evaluation, QLoRA, experiment runner (package dftrain, standalone)
 ```
 
@@ -56,7 +57,8 @@ Starts the API (`:8000`) and the dashboard (`:3000`). In the new-job form pick *
 demo; real data streams from Hugging Face and takes 20-110 s per source to start. The first job downloads the
 Pythia tokenizer once (cached in a volume). Stop with `docker compose down`; job results live in the `runs` volume
 (`docker compose down -v` deletes them). The browser calls the API, so for another host rebuild with
-`NEXT_PUBLIC_API_URL=http://<host>:8000 docker compose up --build`.
+`NEXT_PUBLIC_API_URL=http://<host>:8000 docker compose up --build`. Images are about 620 MB (API) and 440 MB
+(dashboard); training dependencies are not included. CI builds both on every push.
 
 ## Setup
 
