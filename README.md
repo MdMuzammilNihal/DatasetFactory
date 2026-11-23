@@ -1,6 +1,6 @@
 # Dataset Factory
 
-[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-248%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
+[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-284%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
 
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
 curation helps and when it does not**. It is a rebuild, from a college project paper, of a multi-agent curation system
@@ -106,7 +106,8 @@ reads them); the server also deletes unused uploads older than 14 days at start-
 Re-running `experiment` skips finished steps. Before long GPU runs close other GPU apps and check `tok_per_s` in
 `log.jsonl` (~18-19k on the 4060 for 160M); VRAM spilling into shared memory makes training ~5x slower.
 
-**Tests:** `cd backend; .venv/Scripts/python -m pytest -q` and `cd training; ../backend/.venv/Scripts/python -m pytest -q`.
+**Tests:** `cd backend; .venv/Scripts/python -m pytest -q`, `cd training; ../backend/.venv/Scripts/python -m pytest -q`
+and `cd frontend; npm test` (Vitest + Testing Library: helpers, components, both pages with a mocked API and SSE).
 
 ## Verified end to end (2026-11-22)
 
