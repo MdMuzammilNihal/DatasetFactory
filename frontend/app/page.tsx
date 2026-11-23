@@ -48,9 +48,43 @@ export default function Home() {
     } catch (err) { setError(String(err)); setBusy(false); }
   }
 
+  const done = jobs.filter((j) => j.status === "completed");
+  const accepted = jobs.reduce((a, j) => a + (j.accepted || 0), 0);
+  const tokens = jobs.reduce((a, j) => a + (j.tokens || 0), 0);
+  const cand = jobs.reduce((a, j) => a + (j.candidates || 0), 0);
+  const running = jobs.filter((j) => ACTIVE.includes(j.status)).length;
+
   return (
     <>
-      <div className="card">
+      <div className="pagehead">
+        <div><h1>Dashboard</h1><p>Overview of your curation jobs</p></div>
+      </div>
+      <div className="kpis">
+        <div className="kpi t1"><span>Total jobs</span><b>{n(jobs.length)}</b><small>{running} running · {done.length} completed</small></div>
+        <div className="kpi t2"><span>Documents accepted</span><b>{n(accepted)}</b><small>across all jobs</small></div>
+        <div className="kpi t3"><span>Tokens</span><b>{n(tokens)}</b><small>in accepted data</small></div>
+        <div className="kpi t4"><span>Overall yield</span><b>{cand ? pct(accepted / cand) : "–"}</b><small>{n(cand)} candidates read</small></div>
+      </div>
+      {error && <p className="err">{error}</p>}
+      <div className="cols">
+      <div className="card" id="jobs">
+        <h2>Jobs</h2>
+        {jobs.length === 0 ? <span className="mute">no jobs yet</span> : (
+          <table>
+            <thead><tr><th>Job</th><th>Status</th><th>Mode</th><th className="num">Accepted</th><th className="num">Candidates</th>
+              <th className="num">Yield</th><th className="num">Tokens</th><th className="num">Time</th></tr></thead>
+            <tbody>{jobs.map((j) => (
+              <tr key={j.job_id}>
+                <td><a href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}>{j.job_id}</a></td>
+                <td><Badge status={j.status} /></td><td>{j.mode}</td>
+                <td className="num">{n(j.accepted)}</td><td className="num">{n(j.candidates)}</td>
+                <td className="num">{ACTIVE.includes(j.status) && !j.candidates ? "–" : pct(j.yield_rate)}</td>
+                <td className="num">{n(j.tokens)}</td><td className="num">{dur(j.elapsed_seconds)}</td>
+              </tr>))}</tbody>
+          </table>
+        )}
+      </div>
+      <div className="card" id="new">
         <h2>New job</h2>
         <form className="new" onSubmit={start}>
           <label>Domain
@@ -94,23 +128,6 @@ export default function Home() {
         {own && <p className="mute">Your file is uploaded to this machine (max {meta?.upload?.max_mb ?? 200} MB), converted, and run through the same filters; the domain you pick decides which validator applies. Set the amount to at least your document count to read it all.</p>}
         {!own && !synthetic && <p className="mute">Real data is streamed from Hugging Face; sources take 20–110 s to open.</p>}
       </div>
-      {error && <p className="err">{error}</p>}
-      <div className="card">
-        <h2>Jobs</h2>
-        {jobs.length === 0 ? <span className="mute">no jobs yet</span> : (
-          <table>
-            <thead><tr><th>Job</th><th>Status</th><th>Mode</th><th className="num">Accepted</th><th className="num">Candidates</th>
-              <th className="num">Yield</th><th className="num">Tokens</th><th className="num">Time</th></tr></thead>
-            <tbody>{jobs.map((j) => (
-              <tr key={j.job_id}>
-                <td><a href={`/jobs/view?id=${encodeURIComponent(j.job_id)}`}>{j.job_id}</a></td>
-                <td><Badge status={j.status} /></td><td>{j.mode}</td>
-                <td className="num">{n(j.accepted)}</td><td className="num">{n(j.candidates)}</td>
-                <td className="num">{ACTIVE.includes(j.status) && !j.candidates ? "–" : pct(j.yield_rate)}</td>
-                <td className="num">{n(j.tokens)}</td><td className="num">{dur(j.elapsed_seconds)}</td>
-              </tr>))}</tbody>
-          </table>
-        )}
       </div>
     </>
   );
