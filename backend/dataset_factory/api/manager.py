@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import Config, ConfigError, load_config
+from .uploads import UPLOAD_ID_RE
 from ..orchestrator import Job, JobSpec, default_output_dir, load_resumable
 
 JOB_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,100}$")
@@ -148,6 +149,24 @@ class JobManager:
                 continue
         rows.sort(key=lambda s: s.get("started_at") or "", reverse=True)
         return rows
+
+    def uploads_in_use(self) -> set[str]:
+        """ids of uploads that an unfinished job reads (running, stopped, interrupted, failed...).
+
+        A stopped or failed job may be resumed and then needs its input file again.
+        """
+        used: set[str] = set()
+        for row in self.list():
+            if row.get("status") in ("completed", "exhausted"):
+                continue
+            try:
+                spec = self.spec(row["job_id"]) or {}
+            except (JobNotFound, OSError, ValueError, KeyError):
+                continue
+            for part in Path(str(spec.get("input_file") or "")).parts:
+                if UPLOAD_ID_RE.match(part):
+                    used.add(part)
+        return used
 
     def shutdown(self) -> None:
         for entry in self._entries.values():

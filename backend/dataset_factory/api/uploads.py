@@ -13,7 +13,7 @@ import json
 import re
 import secrets
 import shutil
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, BinaryIO, Iterator
 
@@ -168,3 +168,44 @@ def save_upload(output_dir: Path, filename: str, stream: BinaryIO, field: str = 
     except BaseException:
         shutil.rmtree(folder, ignore_errors=True)
         raise
+
+
+def list_uploads(output_dir: Path) -> list[dict[str, Any]]:
+    """meta of every stored upload, newest first (unreadable folders are skipped)."""
+    root = upload_root(output_dir)
+    rows = []
+    for folder in root.iterdir() if root.is_dir() else []:
+        if not UPLOAD_ID_RE.match(folder.name):
+            continue
+        try:
+            rows.append(json.loads((folder / "meta.json").read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            continue
+    rows.sort(key=lambda m: m.get("created_at", ""), reverse=True)
+    return rows
+
+
+def delete_upload(output_dir: Path, upload_id: str) -> None:
+    """remove an upload folder; UploadNotFound for an unknown or malformed id."""
+    upload_path(output_dir, upload_id)          # validates the id and that the upload exists
+    shutil.rmtree(upload_root(output_dir) / upload_id)
+
+
+def purge_old_uploads(output_dir: Path, max_age_days: int, keep: set[str] = frozenset()) -> list[str]:
+    """delete uploads older than ``max_age_days`` that are not in ``keep``; returns the removed ids."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+    removed = []
+    for meta in list_uploads(output_dir):
+        upload_id = meta.get("upload_id", "")
+        try:
+            created = datetime.fromisoformat(meta["created_at"])
+        except (KeyError, ValueError):
+            continue
+        if upload_id in keep or created >= cutoff:
+            continue
+        try:
+            delete_upload(output_dir, upload_id)
+            removed.append(upload_id)
+        except (UploadNotFound, OSError):
+            continue
+    return removed

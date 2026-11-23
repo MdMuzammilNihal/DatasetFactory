@@ -153,7 +153,7 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
     from .api import create_app
 
-    app = create_app(output_dir=args.out, max_running=args.max_running)
+    app = create_app(output_dir=args.out, max_running=args.max_running, upload_days=args.upload_days)
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
     return 0
 
@@ -227,6 +227,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--port", type=int, default=8000)
     p.add_argument("--out", help="folder for job folders (default: [runtime] output_dir)")
     p.add_argument("--max-running", type=int, default=2, help="jobs that may run at once")
+    p.add_argument("--upload-days", type=int, default=14,
+                   help="delete uploads older than this many days at start-up (0 = keep forever)")
     p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("benchmark", help="throughput for several worker counts")

@@ -18,7 +18,8 @@ from .. import __version__
 from ..config import Config, ConfigError, load_config
 from ..orchestrator import MODES, STATUSES, JobSpec, runtime_settings
 from ..validators import DOMAINS
-from .uploads import MAX_BYTES, FORMATS, UploadError, UploadNotFound, save_upload, upload_path
+from .uploads import (MAX_BYTES, FORMATS, UploadError, UploadNotFound, delete_upload, list_uploads,
+                      purge_old_uploads, save_upload, upload_path)
 from .manager import TERMINAL, JobConflict, JobManager, JobNotFound
 
 
@@ -47,8 +48,12 @@ def _read_lines(path: Path, offset: int, limit: int) -> tuple[list[dict[str, Any
 
 
 def create_app(config: Config | None = None, output_dir: str | Path | None = None,
-               max_running: int = 2) -> FastAPI:
+               max_running: int = 2, upload_days: int = 14) -> FastAPI:
+    """``upload_days``: uploads older than this (and not used by an unfinished job) are deleted at
+    start-up; 0 keeps them forever."""
     manager = JobManager(config, output_dir, max_running)
+    if upload_days > 0:
+        purge_old_uploads(manager.output_dir, upload_days, manager.uploads_in_use())
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -94,6 +99,21 @@ def create_app(config: Config | None = None, output_dir: str | Path | None = Non
             return save_upload(manager.output_dir, file.filename or "", file.file, text_field, txt_split)
         except UploadError as exc:
             raise HTTPException(400, str(exc)) from exc
+
+    @app.get("/api/uploads")
+    def get_uploads():
+        in_use = manager.uploads_in_use()
+        return [{**m, "in_use": m.get("upload_id") in in_use} for m in list_uploads(manager.output_dir)]
+
+    @app.delete("/api/uploads/{upload_id}", status_code=204)
+    def remove_upload(upload_id: str):
+        try:
+            upload_path(manager.output_dir, upload_id)
+        except UploadNotFound:
+            raise HTTPException(404, f"no such upload: {upload_id}") from None
+        if upload_id in manager.uploads_in_use():
+            raise HTTPException(409, "an unfinished job still reads this upload; finish or delete that job first")
+        delete_upload(manager.output_dir, upload_id)
 
     @app.get("/api/jobs")
     def list_jobs():

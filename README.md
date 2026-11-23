@@ -1,6 +1,6 @@
 # Dataset Factory
 
-[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-245%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
+[![CI](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MdMuzammilNihal/DatasetFactory/actions/workflows/ci.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.13-blue) ![tests](https://img.shields.io/badge/tests-248%20passing-brightgreen) ![node](https://img.shields.io/badge/node-22-green)
 
 A reproducible pipeline for curating domain data for LLM pretraining, plus an evaluation framework that shows **when
 curation helps and when it does not**. It is a rebuild, from a college project paper, of a multi-agent curation system
@@ -88,6 +88,8 @@ cd frontend; npm run dev          # http://localhost:3000, API URL via NEXT_PUBL
 (max 200 MB), name the text field, set its licence and domain. The same filters, dedup and PII scrub apply. Over HTTP:
 `POST /api/uploads` returns an `upload_id`, then `POST /api/jobs` with `upload_id` and `input_license`. CLI:
 `curate DOMAIN --input f.jsonl`.
+Uploads are listed at `GET /api/uploads` and removed with `DELETE /api/uploads/{id}` (refused while an unfinished job
+reads them); the server also deletes unused uploads older than 14 days at start-up (`serve --upload-days N`, 0 = keep).
 
 **Train and evaluate (from `training`):**
 
