@@ -1,2 +1,3 @@
 /** @type {import('next').NextConfig} */
-export default { reactStrictMode: true };
+// "standalone" lets the Docker image ship only the files the server needs.
+export default { reactStrictMode: true, output: "standalone" };
