@@ -1,8 +1,8 @@
-// Usage: node docs/tools/screenshot.mjs URL OUT.png [width] [height] [waitMs]
+// Usage: node docs/tools/screenshot.mjs URL OUT.png [width] [height] [waitMs] [light|dark]
 // Takes a screenshot of a page with headless Edge/Chrome over the DevTools protocol, waiting for client-side data.
 import { spawn } from "node:child_process";
 import { writeFileSync, existsSync } from "node:fs";
-const [url, out, w = "1280", h = "900", wait = "6000"] = process.argv.slice(2);
+const [url, out, w = "1280", h = "900", wait = "6000", scheme = ""] = process.argv.slice(2);
 const exe = ["C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "C:/Program Files/Google/Chrome/Application/chrome.exe"]
   .find((p) => existsSync(p));
 const port = 9300 + Math.floor(Math.random() * 500);
@@ -17,6 +17,7 @@ let id = 0; const pending = new Map();
 ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id)) pending.get(d.id)(d.result); };
 const send = (method, params = {}) => new Promise((r) => { pending.set(++id, r); ws.send(JSON.stringify({ id, method, params })); });
 await send("Emulation.setDeviceMetricsOverride", { width: +w, height: +h, deviceScaleFactor: 1, mobile: false });
+if (scheme) await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
 await send("Page.navigate", { url });
 await sleep(+wait);
 const shot = await send("Page.captureScreenshot", { format: "png" });
